@@ -4,19 +4,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DataSerializers {
-    private final Map<String, DataSerializer<?>> serializers = new HashMap<>();
+    private static final Map<String, DataSerializer<?>> serializers = new HashMap<>();
 
-    public DataSerializer<?> register(String name, DataSerializer<?> serializer) {
-        return this.serializers.put(name, serializer);
+    public static DataSerializer<?> register(String name, DataSerializer<?> serializer) {
+        return serializers.put(name, serializer);
     }
 
-    public DataSerializer<?> getSerializer(String name) {
-        return this.serializers.get(name);
+    public static DataSerializer<?> getSerializer(String name) {
+        return serializers.get(name);
     }
 
-    public String getSerializerName(DataSerializer<?> serializer) {
-        for (String key : this.serializers.keySet()) {
-            var other = this.serializers.get(key);
+    public static String getSerializerName(DataSerializer<?> serializer) {
+        for (String key : serializers.keySet()) {
+            var other = serializers.get(key);
 
             if (other == serializer) {
                 return key;
@@ -26,8 +26,8 @@ public class DataSerializers {
         return null;
     }
 
-    public <T> DataSerializer<T> getSerializerFor(T value) {
-        for (DataSerializer<?> serializer : this.serializers.values()) {
+    public static <T> DataSerializer<T> getSerializerFor(T value) {
+        for (DataSerializer<?> serializer : serializers.values()) {
             if (serializer.getSerializableClass().isAssignableFrom(value.getClass())) {
                 return (DataSerializer<T>) serializer;
             }
