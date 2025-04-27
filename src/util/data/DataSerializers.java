@@ -26,9 +26,9 @@ public class DataSerializers {
         return null;
     }
 
-    public static <T> DataSerializer<T> getSerializerFor(T value) {
+    public static <T> DataSerializer<T> getSerializerFor(Class<T> clazz) {
         for (DataSerializer<?> serializer : serializers.values()) {
-            if (serializer.getSerializableClass().isAssignableFrom(value.getClass())) {
+            if (serializer.getSerializableClass().isAssignableFrom(clazz)) {
                 return (DataSerializer<T>) serializer;
             }
         }
