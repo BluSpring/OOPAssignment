@@ -29,6 +29,8 @@ public class AuthManager implements Iterable<Account>, DataSerializable {
 
         this.accountFile = new File(type.name().toLowerCase(Locale.ROOT) + "_accounts.txt");
         this.authLogsFile = new File(type.name().toLowerCase(Locale.ROOT) + "_auth_logs.txt");
+
+        this.load();
     }
 
     public AccountType getType() {
@@ -115,6 +117,8 @@ public class AuthManager implements Iterable<Account>, DataSerializable {
 
         var account = new Account(this.getType(), email, displayName, hashPassword(password));
         this.accounts.add(account);
+        this.save();
+
         return account;
     }
 
@@ -130,6 +134,7 @@ public class AuthManager implements Iterable<Account>, DataSerializable {
         }
 
         this.authLogs.add(new AuthLog(email, System.currentTimeMillis()));
+        this.save();
 
         return account;
     }
