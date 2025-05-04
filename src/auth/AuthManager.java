@@ -11,10 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 public class AuthManager implements Iterable<Account>, DataSerializable {
     private final List<Account> accounts = new ArrayList<>();
@@ -39,6 +36,10 @@ public class AuthManager implements Iterable<Account>, DataSerializable {
 
     public Iterator<Account> iterator() {
         return this.accounts.iterator();
+    }
+
+    public Iterator<AuthLog> authLogIterator() {
+        return this.authLogs.iterator();
     }
 
     @Override
@@ -103,7 +104,18 @@ public class AuthManager implements Iterable<Account>, DataSerializable {
     public Account getAccountByEmail(String email) {
         // Search for an account with a given email
         for (Account account : accounts) {
-            if (account.email().equals(email)) {
+            if (account.getEmail().equals(email)) {
+                return account;
+            }
+        }
+
+        return null;
+    }
+
+    public Account getAccountByUUID(UUID uuid) {
+        // Search for an account with a given UUID
+        for (Account account : accounts) {
+            if (account.getUUID().equals(uuid)) {
                 return account;
             }
         }
@@ -115,8 +127,19 @@ public class AuthManager implements Iterable<Account>, DataSerializable {
         if (this.getAccountByEmail(email) != null)
             throw new IllegalArgumentException("An account with that email already exists!");
 
-        var account = new Account(this.getType(), email, displayName, hashPassword(password));
+        // Generate a random UUID. This UUID is used to uniquely identify an account.
+        var uuid = UUID.randomUUID();
+
+        // Ensure that the UUID is actually unique, as UUIDs are bound to collide even if it is an incredibly low chance of doing so.
+        do {
+            if (this.getAccountByUUID(uuid) != null)
+                uuid = UUID.randomUUID();
+            else break;
+        } while (true);
+
+        var account = new Account(this.getType(), uuid, email, displayName, hashPassword(password));
         this.accounts.add(account);
+        this.addAuthLog(account, AuthLog.Type.REGISTER);
         this.save();
 
         return account;
@@ -129,21 +152,46 @@ public class AuthManager implements Iterable<Account>, DataSerializable {
             throw new IllegalArgumentException("Invalid email or password!");
         }
 
-        if (!account.passwordHash().equals(this.hashPassword(password))) {
+        if (!account.getPasswordHash().equals(this.hashPassword(password))) {
             throw new IllegalArgumentException("Invalid email or password!");
         }
 
-        this.authLogs.add(new AuthLog(email, System.currentTimeMillis()));
+        this.addAuthLog(account, AuthLog.Type.LOGIN);
         this.save();
 
         return account;
     }
 
+    public void changePassword(Account account, String oldPassword, String newPassword) {
+        if (!account.getPasswordHash().equals(this.hashPassword(oldPassword))) {
+            throw new IllegalArgumentException("Invalid email or password!");
+        }
+
+        if (account.getPasswordHash().equals(this.hashPassword(newPassword))) {
+            throw new IllegalArgumentException("New password is the same as the old password!");
+        }
+
+        account.setPasswordHash(this.hashPassword(newPassword));
+        this.addAuthLog(account, AuthLog.Type.CHANGE_PASSWORD);
+        this.save();
+    }
+
+    public void addAuthLog(Account account, AuthLog.Type type) {
+        this.addAuthLog(account, type, "");
+    }
+
+    public void addAuthLog(Account account, AuthLog.Type type, String extraData) {
+        this.authLogs.add(new AuthLog(account.getUUID(), type, System.currentTimeMillis(), extraData));
+    }
+
     private String hashPassword(String password) {
         try {
+            // Get a SHA-256 message digest algorithm for hashing
             var digest = MessageDigest.getInstance("SHA-256");
+            // Run the string through the algorithm to hash it with SHA-256
             var hashBytes = digest.digest(password.getBytes(StandardCharsets.UTF_8));
 
+            // Convert the hashed string into a hexadecimal string, for storage.
             return ByteArrayUtils.bytesToHex(hashBytes);
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
