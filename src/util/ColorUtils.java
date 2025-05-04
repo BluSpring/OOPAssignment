@@ -3,6 +3,8 @@ package util;
 import java.awt.*;
 
 public class ColorUtils {
+    public static final Color NONE = new Color(0f, 0f, 0f, 0f);
+
     /**
      * Converts a hex value to an AWT Color.
      * @param hexRGB The hex value (formatted in RGB) to convert

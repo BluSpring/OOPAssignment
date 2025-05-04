@@ -1,6 +1,6 @@
 package auth;
 
-import util.StringUtils;
+import util.Utils;
 import util.data.DataSerializer;
 import util.data.DataSerializers;
 
@@ -17,7 +17,7 @@ public record Account(
 
         @Override
         public String serialize(Account value) {
-            return StringUtils.join(",", value.accountType().name(), value.email(), value.displayName(), value.passwordHash());
+            return Utils.join(",", value.accountType().name(), value.email(), value.displayName(), value.passwordHash());
         }
 
         @Override

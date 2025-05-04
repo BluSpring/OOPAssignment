@@ -1,6 +1,6 @@
 package auth;
 
-import util.StringUtils;
+import util.Utils;
 import util.data.DataSerializer;
 import util.data.DataSerializers;
 
@@ -15,7 +15,7 @@ public record AuthLog(
 
         @Override
         public String serialize(AuthLog value) {
-            return StringUtils.join(",", value.email(), value.timestamp());
+            return Utils.join(",", value.email(), value.timestamp());
         }
 
         @Override
