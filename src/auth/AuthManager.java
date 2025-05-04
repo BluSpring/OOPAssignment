@@ -5,10 +5,7 @@ import util.data.DataSerializable;
 import util.data.DataSerializers;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
@@ -47,58 +44,14 @@ public class AuthManager implements Iterable<Account>, DataSerializable {
         accounts.clear();
         authLogs.clear();
 
-        try {
-            if (accountFile.exists()) {
-                var serializer = DataSerializers.getSerializerFor(Account.class);
-                var lines = Files.readAllLines(accountFile.toPath(), StandardCharsets.UTF_8);
-
-                for (String line : lines) {
-                    accounts.add(serializer.deserialize(line));
-                }
-            }
-
-            if (authLogsFile.exists()) {
-                var serializer = DataSerializers.getSerializerFor(AuthLog.class);
-                var lines = Files.readAllLines(authLogsFile.toPath(), StandardCharsets.UTF_8);
-
-                for (String line : lines) {
-                    authLogs.add(serializer.deserialize(line));
-                }
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        DataSerializers.deserializeLines(Account.class, accountFile, accounts);
+        DataSerializers.deserializeLines(AuthLog.class, authLogsFile, authLogs);
     }
 
     @Override
     public void save() {
-        try {
-            if (!accountFile.exists()) {
-                accountFile.createNewFile();
-            }
-
-            if (!authLogsFile.exists()) {
-                authLogsFile.createNewFile();
-            }
-
-            var accountSerializer = DataSerializers.getSerializerFor(Account.class);
-            var authLogSerializer = DataSerializers.getSerializerFor(AuthLog.class);
-
-            var serializedAccounts = new ArrayList<String>();
-            for (Account account : accounts) {
-                serializedAccounts.add(accountSerializer.serialize(account));
-            }
-
-            var serializedAuthLogs = new ArrayList<String>();
-            for (AuthLog authLog : authLogs) {
-                serializedAuthLogs.add(authLogSerializer.serialize(authLog));
-            }
-
-            Files.write(accountFile.toPath(), serializedAccounts, StandardCharsets.UTF_8, StandardOpenOption.WRITE);
-            Files.write(authLogsFile.toPath(), serializedAuthLogs, StandardCharsets.UTF_8, StandardOpenOption.WRITE);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        DataSerializers.serializeValues(Account.class, accountFile, accounts);
+        DataSerializers.serializeValues(AuthLog.class, authLogsFile, authLogs);
     }
 
     public Account getAccountByEmail(String email) {
