@@ -23,6 +23,8 @@ import java.util.function.Consumer;
 
 public class Main {
     private static final JFrame window = new JFrame();
+    public static Color topGradient = Color.WHITE;
+    public static Color bottomGradient = Color.WHITE;
 
     public static JFrame getFrame() {
         return window;
@@ -40,6 +42,9 @@ public class Main {
 
     public static void createRegisterScreen(AccountType type, Consumer<Account> accountConsumer) {
         reset();
+
+        topGradient = ColorUtils.fromHex(0xBA00DE);
+        bottomGradient = ColorUtils.fromHex(0x7E02C7);
 
         var mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
@@ -75,7 +80,7 @@ public class Main {
         {
             var panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
-            panel.add(new JLabel("You are registering a new Customer account."));
+            panel.add(new JLabel("You are registering a new " + type.name() + " account."));
 
             panel.setOpaque(false);
             mainPanel.add(panel);
@@ -180,6 +185,9 @@ public class Main {
 
     public static void createLoginScreen() {
         reset();
+
+        topGradient = ColorUtils.fromHex(0x2c70f0);
+        bottomGradient = ColorUtils.fromHex(0x25358e);
 
         var mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
@@ -361,7 +369,7 @@ public class Main {
 
                 var width = this.getWidth();
                 var height = this.getHeight();
-                var gradient = new GradientPaint(0f, 0f, ColorUtils.fromHex(0x2c70f0), 0f, height, ColorUtils.fromHex(0x25358e));
+                var gradient = new GradientPaint(0f, 0f, topGradient, 0f, height, bottomGradient);
 
                 g2d.setPaint(gradient);
                 g2d.fillRect(0, 0, width, height);
