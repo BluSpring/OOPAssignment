@@ -1,6 +1,7 @@
 package util;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import java.awt.*;
 
 /**
@@ -31,6 +32,11 @@ public class SwingComponentBuilder<T extends JComponent> {
 
     public SwingComponentBuilder<T> setFont(Font font) {
         this.component.setFont(font);
+        return this;
+    }
+
+    public SwingComponentBuilder<T> setBorder(Border border) {
+        this.component.setBorder(border);
         return this;
     }
 

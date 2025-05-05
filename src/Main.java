@@ -2,12 +2,18 @@ import admin.Admin;
 import auth.AccountType;
 import customer.Customer;
 import seller.Seller;
+import ui.PlaceholderTextField;
 import util.ColorUtils;
 import util.SwingComponentBuilder;
+import util.Utils;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.awt.font.TextAttribute;
+import java.util.Map;
 
 public class Main {
     private static final JFrame window = new JFrame() {
@@ -46,11 +52,93 @@ public class Main {
 
             panel.add(new JLabel("Login as: "));
             panel.add(new SwingComponentBuilder<>(new JComboBox<>(AccountType.values()))
-                .setOpaque(false)
                 .build()
             );
 
             panel.setOpaque(false);
+            mainPanel.add(panel);
+        }
+
+        {
+            var panel = new JPanel();
+            panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+
+            panel.add(
+                Utils.make(new PlaceholderTextField("E-mail"), field -> {
+                    field.setOpaque(false);
+                    field.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createCompoundBorder(
+                            BorderFactory.createEmptyBorder(2, 2, 2, 2),
+                            LineBorder.createBlackLineBorder()
+                        ),
+                        BorderFactory.createEmptyBorder(4, 4, 4, 4)
+                    ));
+                })
+            );
+            panel.add(
+                Utils.make(new PlaceholderTextField("Password"), field -> {
+                    field.setOpaque(false);
+                    field.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createCompoundBorder(
+                            BorderFactory.createEmptyBorder(2, 2, 2, 2),
+                            LineBorder.createBlackLineBorder()
+                        ),
+                        BorderFactory.createEmptyBorder(4, 4, 4, 4)
+                    ));
+                })
+            );
+
+            panel.setOpaque(false);
+            mainPanel.add(panel);
+        }
+
+        {
+            var panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            panel.setOpaque(false);
+
+            panel.add(
+                Utils.make(new JCheckBox("Remember Me"), component -> {
+                    component.setOpaque(false);
+                    component.setForeground(Color.WHITE);
+                    component.setBorder(new EmptyBorder(2, 2, 2, 2));
+                })
+            );
+
+            panel.add(
+                Utils.make(new JButton("Forgot password"), button -> {
+                    button.setOpaque(false);
+
+                    // Do not set the generic types, as otherwise an error occurs in compilation.
+                    Map attributes = button.getFont().getAttributes();
+                    attributes.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
+                    button.setFont(button.getFont().deriveFont(attributes));
+
+                    button.setForeground(Color.WHITE);
+                    button.setBorder(new EmptyBorder(2, 2, 2, 2));
+                    button.setBackground(ColorUtils.NONE);
+                })
+            );
+
+            mainPanel.add(panel);
+        }
+
+        {
+            var panel = new JPanel();
+            panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+            panel.setOpaque(false);
+
+            panel.add(
+                Utils.make(new JButton("Login"), button -> {
+                    button.setAlignmentX(Component.CENTER_ALIGNMENT);
+                })
+            );
+
+            panel.add(
+                Utils.make(new JButton("Sign Up"), button -> {
+                    button.setAlignmentX(Component.CENTER_ALIGNMENT);
+                })
+            );
+
             mainPanel.add(panel);
         }
 
