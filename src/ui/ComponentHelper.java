@@ -4,13 +4,22 @@ import util.ColorUtils;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
+import javax.swing.text.JTextComponent;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.font.TextAttribute;
 import java.util.Map;
 
 public class ComponentHelper {
+    /**
+     * Adds a listener to make a component change foreground colours when hovered.
+     * @param component
+     * @param hoverColor
+     */
     public static void setForegroundHoverColor(Component component, Color hoverColor) {
         var originalColor = component.getForeground();
 
@@ -39,6 +48,40 @@ public class ComponentHelper {
         });
     }
 
+    /**
+     * Prevents whitespace from being entered into a field.
+     * @param field The text field to disallow whitespace into.
+     */
+    public static void disallowWhitespace(JTextComponent field) {
+        field.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                if (Character.isWhitespace(e.getKeyChar())) {
+                    e.consume();
+                }
+            }
+        });
+    }
+
+    /**
+     * Adds default padding and margins to a text field
+     * @param field
+     */
+    public static void makePaddedAndMarginedTextField(JTextComponent field) {
+        field.setOpaque(false);
+        field.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createCompoundBorder(
+                BorderFactory.createEmptyBorder(2, 2, 2, 2),
+                LineBorder.createBlackLineBorder()
+            ),
+            BorderFactory.createEmptyBorder(4, 4, 4, 4)
+        ));
+    }
+
+    /**
+     * Makes a button follow the formatting of a hyperlink
+     * @param button
+     */
     public static void makeHyperlink(JButton button) {
         button.setOpaque(false);
 

@@ -3,10 +3,10 @@ package ui;
 import javax.swing.*;
 import java.awt.*;
 
-public class PlaceholderTextField extends JTextField {
+public class PlaceholderPasswordTextField extends JPasswordField {
     private String placeholder;
 
-    public PlaceholderTextField(String placeholder) {
+    public PlaceholderPasswordTextField(String placeholder) {
         super("");
         this.placeholder = placeholder;
     }

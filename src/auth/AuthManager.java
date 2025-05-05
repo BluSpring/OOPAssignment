@@ -9,8 +9,24 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class AuthManager implements Iterable<Account>, DataSerializable {
+    // Regular expression pattern for defining emails, which was officially provided by RFC 5322.
+    private static final Pattern EMAIL_REGEX = Pattern.compile("^[a-zA-Z0-9_!#$%&’*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$");
+
+    // Ensures that the provided email is valid.
+    public static void checkValidEmail(String email) {
+        if (!EMAIL_REGEX.matcher(email).matches())
+            throw new IllegalArgumentException("Invalid email provided!");
+    }
+
+    // Ensures that the user has a strong password
+    public static void checkStrongPassword(String password) {
+        if (password.length() < 8)
+            throw new IllegalArgumentException("Password must be more than 8 characters!");
+    }
+
     private final List<Account> accounts = new ArrayList<>();
     private final List<AuthLog> authLogs = new ArrayList<>();
     private final AccountType type;
@@ -80,6 +96,9 @@ public class AuthManager implements Iterable<Account>, DataSerializable {
         if (this.getAccountByEmail(email) != null)
             throw new IllegalArgumentException("An account with that email already exists!");
 
+        checkValidEmail(email);
+        checkStrongPassword(password);
+
         // Generate a random UUID. This UUID is used to uniquely identify an account.
         var uuid = UUID.randomUUID();
 
@@ -116,6 +135,8 @@ public class AuthManager implements Iterable<Account>, DataSerializable {
     }
 
     public void changePassword(Account account, String oldPassword, String newPassword) {
+        checkStrongPassword(newPassword);
+
         if (!account.getPasswordHash().equals(this.hashPassword(oldPassword))) {
             throw new IllegalArgumentException("Invalid email or password!");
         }

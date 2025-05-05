@@ -4,6 +4,7 @@ import auth.AuthManager;
 import customer.Customer;
 import seller.Seller;
 import ui.ComponentHelper;
+import ui.PlaceholderPasswordTextField;
 import ui.PlaceholderTextField;
 import util.ColorUtils;
 import util.Utils;
@@ -11,24 +12,12 @@ import util.Utils;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 import java.awt.*;
-import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.util.Objects;
 
 public class Main {
-    private static final JFrame window = new JFrame() {
-        @Override
-        protected void processKeyEvent(KeyEvent e) {
-            super.processKeyEvent(e);
-
-            // Forced reload
-            if (e.getKeyCode() == KeyEvent.VK_F5) {
-                createLogin();
-            }
-        }
-    };
+    private static final JFrame window = new JFrame();
 
     public static JFrame getFrame() {
         return window;
@@ -44,7 +33,7 @@ public class Main {
         window.repaint();
     }
 
-    public static void createLogin() {
+    public static void createRegisterScreen() {
         reset();
 
         var mainPanel = new JPanel();
@@ -52,7 +41,152 @@ public class Main {
 
         var accountType = new JComboBox<>(AccountType.values());
         var email = new PlaceholderTextField("E-mail");
-        var password = new PlaceholderTextField("Password");
+        var displayName = new PlaceholderTextField("Display Name");
+        var password = new PlaceholderPasswordTextField("Password");
+        var confirmPassword = new PlaceholderPasswordTextField("Confirm Password");
+
+        {
+            var panel = new JPanel();
+            panel.setOpaque(false);
+            // not sure why Swing's not allowing us to resize anything, so we're just adding padding ourselves.
+            panel.add(new JLabel(new ImageIcon(Utils.createEmptyImage(15, 18))));
+            mainPanel.add(panel);
+        }
+
+        {
+            var panel = new JPanel();
+            panel.setOpaque(false);
+
+            try {
+                var image = Utils.getCircularImage(ImageIO.read(Main.class.getResourceAsStream("/images/profile.png")))
+                    .getScaledInstance(128, 128, Image.SCALE_SMOOTH);
+                panel.add(new JLabel(new ImageIcon(image)));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            mainPanel.add(panel);
+        }
+
+        {
+            var panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+
+            panel.add(new JLabel("You are registering a new Customer account."));
+
+            panel.setOpaque(false);
+            mainPanel.add(panel);
+        }
+
+        {
+            var panel = new JPanel();
+            panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+
+            panel.add(
+                Utils.make(email, field -> {
+                    ComponentHelper.disallowWhitespace(field);
+                    ComponentHelper.makePaddedAndMarginedTextField(field);
+                })
+            );
+
+            panel.add(
+                Utils.make(displayName, field -> {
+                    ComponentHelper.disallowWhitespace(field);
+                    ComponentHelper.makePaddedAndMarginedTextField(field);
+                })
+            );
+
+            panel.add(
+                Utils.make(password, field -> {
+                    ComponentHelper.disallowWhitespace(field);
+                    ComponentHelper.makePaddedAndMarginedTextField(field);
+                })
+            );
+
+            panel.add(
+                Utils.make(confirmPassword, field -> {
+                    ComponentHelper.disallowWhitespace(field);
+                    ComponentHelper.makePaddedAndMarginedTextField(field);
+                })
+            );
+
+            panel.setOpaque(false);
+            mainPanel.add(panel);
+        }
+
+        var errorText = new JLabel("Error: [unknown]");
+        errorText.setForeground(ColorUtils.fromHex(0xFF5A5A));
+        errorText.setFont(errorText.getFont().deriveFont(14f));
+
+        {
+            var panel = new JPanel();
+            panel.setOpaque(false);
+            panel.setLayout(new FlowLayout(FlowLayout.CENTER));
+            errorText.setVisible(false);
+            panel.add(errorText);
+            mainPanel.add(panel);
+        }
+
+        {
+            var panel = new JPanel();
+            panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+            panel.setOpaque(false);
+
+            panel.add(
+                Utils.make(new JButton("Register"), button -> {
+                    button.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+                    button.addActionListener(e -> {
+                        errorText.setVisible(false);
+
+                        try {
+                            if (!password.getText().equals(confirmPassword.getText()))
+                                throw new IllegalArgumentException("Passwords do not match!");
+
+                            AuthManager authManager = getAuthManager((AccountType) accountType.getSelectedItem());
+                            var account = authManager.create(email.getText(), displayName.getText(), password.getText());
+
+                            switch ((AccountType) Objects.requireNonNull(accountType.getSelectedItem())) {
+                                case ADMINISTRATOR -> Admin.create(account);
+                                case CUSTOMER -> Customer.create(account);
+                                case SELLER -> Seller.create(account);
+                            }
+                        } catch (Exception exception) {
+                            errorText.setText("Error: " + exception.getMessage());
+                            errorText.setVisible(true);
+                            exception.printStackTrace();
+                        }
+                    });
+                })
+            );
+
+            panel.add(Utils.make(new JPanel(new FlowLayout(FlowLayout.CENTER)), signUp -> {
+                signUp.setOpaque(false);
+                signUp.add(new JLabel("Already have an account? "));
+
+                signUp.add(Utils.make(new JButton("Log in"), button -> {
+                    ComponentHelper.makeHyperlink(button);
+                    button.addActionListener(e -> createLoginScreen());
+                }));
+            }));
+
+            mainPanel.add(panel);
+        }
+
+        mainPanel.setOpaque(false);
+        window.getContentPane().add(mainPanel);
+
+        refresh();
+    }
+
+    public static void createLoginScreen() {
+        reset();
+
+        var mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+
+        var accountType = new JComboBox<>(AccountType.values());
+        var email = new PlaceholderTextField("E-mail");
+        var password = new PlaceholderPasswordTextField("Password");
 
         {
             var panel = new JPanel();
@@ -93,26 +227,14 @@ public class Main {
 
             panel.add(
                 Utils.make(email, field -> {
-                    field.setOpaque(false);
-                    field.setBorder(BorderFactory.createCompoundBorder(
-                        BorderFactory.createCompoundBorder(
-                            BorderFactory.createEmptyBorder(2, 2, 2, 2),
-                            LineBorder.createBlackLineBorder()
-                        ),
-                        BorderFactory.createEmptyBorder(4, 4, 4, 4)
-                    ));
+                    ComponentHelper.disallowWhitespace(field);
+                    ComponentHelper.makePaddedAndMarginedTextField(field);
                 })
             );
             panel.add(
                 Utils.make(password, field -> {
-                    field.setOpaque(false);
-                    field.setBorder(BorderFactory.createCompoundBorder(
-                        BorderFactory.createCompoundBorder(
-                            BorderFactory.createEmptyBorder(2, 2, 2, 2),
-                            LineBorder.createBlackLineBorder()
-                        ),
-                        BorderFactory.createEmptyBorder(4, 4, 4, 4)
-                    ));
+                    ComponentHelper.disallowWhitespace(field);
+                    ComponentHelper.makePaddedAndMarginedTextField(field);
                 })
             );
 
@@ -141,7 +263,7 @@ public class Main {
             mainPanel.add(panel);
         }
 
-        var errorText = new JLabel("Error: Invalid email/password!");
+        var errorText = new JLabel("Error: [unknown]");
         errorText.setForeground(ColorUtils.fromHex(0xFF5A5A));
         errorText.setFont(errorText.getFont().deriveFont(14f));
 
@@ -190,6 +312,7 @@ public class Main {
 
                 signUp.add(Utils.make(new JButton("Create an account"), button -> {
                     ComponentHelper.makeHyperlink(button);
+                    button.addActionListener(e -> createRegisterScreen());
                 }));
             }));
 
@@ -249,7 +372,7 @@ public class Main {
         Customer.init();
         Seller.init();
 
-        createLogin();
+        createLoginScreen();
 
         window.setVisible(true);
     }
