@@ -80,4 +80,6 @@ public class Order {
     static {
         DataSerializers.register("order", new Serializer());
     }
+
+    public static void init() {}
 }

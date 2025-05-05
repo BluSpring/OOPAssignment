@@ -73,4 +73,6 @@ public class Account {
     static {
         DataSerializers.register("account", new Account.Serializer());
     }
+
+    public static void init() {}
 }

@@ -1,7 +1,11 @@
 import admin.Admin;
+import auth.Account;
 import auth.AccountType;
+import auth.AuthLog;
 import auth.AuthManager;
 import customer.Customer;
+import product.Order;
+import product.Product;
 import seller.Seller;
 import ui.ComponentHelper;
 import ui.PlaceholderPasswordTextField;
@@ -367,6 +371,12 @@ public class Main {
                 //super.paintComponent(g);
             }
         });
+
+        // Initialize data classes, just to make sure that their serializers are registered first.
+        Account.init();
+        AuthLog.init();
+        Order.init();
+        Product.init();
 
         Admin.init();
         Customer.init();

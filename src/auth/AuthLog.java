@@ -38,11 +38,13 @@ public record AuthLog(
         public AuthLog deserialize(String data) {
             var split = DataSerializers.readSegmentedLine(data);
 
-            return new AuthLog(UUID.fromString(split.get(0)), Type.valueOf(split.get(1)), Long.getLong(split.get(2)), split.get(3));
+            return new AuthLog(UUID.fromString(split.get(0)), Type.valueOf(split.get(1)), Long.parseLong(split.get(2)), split.get(3));
         }
     }
 
     static {
         DataSerializers.register("auth_log", new Serializer());
     }
+
+    public static void init() {}
 }
