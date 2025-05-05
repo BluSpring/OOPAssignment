@@ -3,6 +3,8 @@ package util;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.Consumer;
 
@@ -15,6 +17,16 @@ public class Utils {
         }
 
         return strings.toString();
+    }
+
+    public static List<String> allToStrings(Object... values) {
+        var list = new ArrayList<String>();
+
+        for (Object value : values) {
+            list.add(value.toString());
+        }
+
+        return list;
     }
 
     public static <T> T make(T object, Consumer<T> consumer) {

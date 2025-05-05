@@ -60,13 +60,13 @@ public class Account {
 
         @Override
         public String serialize(Account value) {
-            return Utils.join(",", value.getAccountType().name(), value.getUUID(), value.getEmail(), value.getDisplayName(), value.getPasswordHash());
+            return DataSerializers.writeSegmentedLine(Utils.allToStrings(value.getAccountType().name(), value.getUUID(), value.getEmail(), value.getDisplayName(), value.getPasswordHash()));
         }
 
         @Override
         public Account deserialize(String data) {
-            var split = data.split(",");
-            return new Account(AccountType.valueOf(split[0]), UUID.fromString(split[1]), split[2], split[3], split[4]);
+            var split = DataSerializers.readSegmentedLine(data);
+            return new Account(AccountType.valueOf(split.get(0)), UUID.fromString(split.get(1)), split.get(2), split.get(3), split.get(4));
         }
     }
 

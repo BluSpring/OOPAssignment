@@ -76,4 +76,65 @@ public class DataSerializers {
             throw new RuntimeException(e);
         }
     }
+
+    private static final String SEGMENT_DELIMITER = ", ";
+    private static final char SEGMENT_CONTAINER = '"';
+
+    // Allows reading lines in a format of "segment 1""segment2" without worrying about any characters causing breakage to the system.
+    // Additionally, almost any character can be within these segments, allowing for delimiters.
+    public static List<String> readSegmentedLine(String line) {
+        var segments = new ArrayList<String>();
+        var stringBuilder = new StringBuilder();
+
+        boolean isInSegment = false;
+        boolean isInEscape = false;
+        for (var i = 0; i < line.length(); i++) {
+            var c = line.charAt(i);
+
+            if (c == '\\' && !isInEscape) {
+                isInEscape = true;
+            } else if (isInEscape) {
+                if (isInSegment) {
+                    stringBuilder.append(c);
+                    isInEscape = false;
+                }
+            } else if (c == SEGMENT_CONTAINER) {
+                if (isInSegment) {
+                    isInSegment = false;
+                    segments.add(stringBuilder.toString());
+                    stringBuilder = new StringBuilder();
+                } else {
+                    isInSegment = true;
+                }
+            } else if (isInSegment) {
+                stringBuilder.append(c);
+            }
+        }
+
+        return segments;
+    }
+
+    public static String writeSegmentedLine(List<String> segments) {
+        var stringBuilder = new StringBuilder();
+
+        for (var i = 0; i < segments.size(); i++) {
+            var segment = segments.get(i);
+            stringBuilder.append(SEGMENT_CONTAINER);
+
+            stringBuilder.append(
+                segment
+                    .replace("\\", "\\\\") // Ensure that backslashes aren't used to escape anything themselves.
+                    .replace("" + SEGMENT_CONTAINER, "\\" + SEGMENT_CONTAINER)
+            );
+
+            stringBuilder.append(SEGMENT_CONTAINER);
+
+            // Add delimiter unless this is the last segment.
+            if (i < segments.size() - 1) {
+                stringBuilder.append(SEGMENT_DELIMITER);
+            }
+        }
+
+        return stringBuilder.toString();
+    }
 }

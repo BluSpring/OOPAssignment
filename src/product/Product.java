@@ -58,13 +58,13 @@ public class Product {
 
         @Override
         public String serialize(Product value) {
-            return Utils.join(",", value.getBarcode(), value.getName(), value.getPrice(), value.getStock(), value.getDiscount());
+            return DataSerializers.writeSegmentedLine(Utils.allToStrings(value.getBarcode(), value.getName(), value.getPrice(), value.getStock(), value.getDiscount()));
         }
 
         @Override
         public Product deserialize(String data) {
-            var split = data.split(",");
-            return new Product(split[0], split[1], Double.parseDouble(split[2]), Integer.parseInt(split[3]), Double.parseDouble(split[4]));
+            var split = DataSerializers.readSegmentedLine(data);
+            return new Product(split.get(0), split.get(1), Double.parseDouble(split.get(2)), Integer.parseInt(split.get(3)), Double.parseDouble(split.get(4)));
         }
     }
 

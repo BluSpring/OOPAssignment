@@ -1,25 +1,26 @@
 package product;
 
-import auth.Account;
 import util.Utils;
 import util.data.DataSerializer;
 import util.data.DataSerializers;
 
+import java.util.UUID;
+
 public class Order {
-    private final Account account;
+    private final UUID account;
     private final int orderId;
     private final long orderTimestamp;
     private long deliveredTimestamp = -1;
     private OrderStatus status = OrderStatus.PENDING;
     private PaymentStatus paymentStatus = PaymentStatus.PENDING;
 
-    public Order(Account account, int orderId, long orderTimestamp) {
+    public Order(UUID account, int orderId, long orderTimestamp) {
         this.account = account;
         this.orderId = orderId;
         this.orderTimestamp = orderTimestamp;
     }
 
-    public Order(Account account, int orderId, long orderTimestamp, long deliveredTimestamp, OrderStatus status, PaymentStatus paymentStatus) {
+    public Order(UUID account, int orderId, long orderTimestamp, long deliveredTimestamp, OrderStatus status, PaymentStatus paymentStatus) {
         this(account, orderId, orderTimestamp);
         this.deliveredTimestamp = deliveredTimestamp;
         this.status = status;
@@ -42,7 +43,7 @@ public class Order {
         return orderId;
     }
 
-    public Account getAccount() {
+    public UUID getAccountUUID() {
         return account;
     }
 
@@ -65,12 +66,14 @@ public class Order {
 
         @Override
         public String serialize(Order value) {
-            return Utils.join(",", value.getAccount().getUUID(), value.getOrderId(), value.getOrderTimestamp(), value.getDeliveredTimestamp(), value.getStatus(), value.getPaymentStatus());
+            return DataSerializers.writeSegmentedLine(Utils.allToStrings(value.getAccountUUID(), value.getOrderId(), value.getOrderTimestamp(), value.getDeliveredTimestamp(), value.getStatus().name(), value.getPaymentStatus().name()));
         }
 
         @Override
         public Order deserialize(String data) {
-            return null;
+            var split = DataSerializers.readSegmentedLine(data);
+
+            return new Order(UUID.fromString(split.get(0)), Integer.parseInt(split.get(1)), Long.parseLong(split.get(2)), Long.parseLong(split.get(3)), OrderStatus.valueOf(split.get(4)), PaymentStatus.valueOf(split.get(5)));
         }
     }
 

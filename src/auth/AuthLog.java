@@ -31,14 +31,14 @@ public record AuthLog(
 
         @Override
         public String serialize(AuthLog value) {
-            return Utils.join(",", value.uuid(), value.type().name(), value.timestamp(), value.extraData());
+            return DataSerializers.writeSegmentedLine(Utils.allToStrings(value.uuid(), value.type().name(), value.timestamp(), value.extraData()));
         }
 
         @Override
         public AuthLog deserialize(String data) {
-            var split = data.split(",");
+            var split = DataSerializers.readSegmentedLine(data);
 
-            return new AuthLog(UUID.fromString(split[0]), Type.valueOf(split[1]), Long.getLong(split[2]), split[3]);
+            return new AuthLog(UUID.fromString(split.get(0)), Type.valueOf(split.get(1)), Long.getLong(split.get(2)), split.get(3));
         }
     }
 
