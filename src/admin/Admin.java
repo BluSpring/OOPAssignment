@@ -1,5 +1,6 @@
 package admin;
 
+import auth.Account;
 import auth.AccountType;
 import auth.AuthManager;
 
@@ -11,6 +12,10 @@ public class Admin {
     }
 
     public static void init() {
+
+    }
+
+    public static void create(Account account) {
 
     }
 }

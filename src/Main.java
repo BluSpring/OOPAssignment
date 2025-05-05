@@ -1,19 +1,21 @@
 import admin.Admin;
 import auth.AccountType;
+import auth.AuthManager;
 import customer.Customer;
 import seller.Seller;
+import ui.ComponentHelper;
 import ui.PlaceholderTextField;
 import util.ColorUtils;
-import util.SwingComponentBuilder;
 import util.Utils;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.awt.font.TextAttribute;
-import java.util.Map;
+import java.io.IOException;
+import java.util.Objects;
 
 public class Main {
     private static final JFrame window = new JFrame() {
@@ -45,15 +47,41 @@ public class Main {
     public static void createLogin() {
         reset();
 
-        var mainPanel = new JPanel(new GridLayout(5, 1));
+        var mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+
+        var accountType = new JComboBox<>(AccountType.values());
+        var email = new PlaceholderTextField("E-mail");
+        var password = new PlaceholderTextField("Password");
+
+        {
+            var panel = new JPanel();
+            panel.setOpaque(false);
+            // not sure why Swing's not allowing us to resize anything, so we're just adding padding ourselves.
+            panel.add(new JLabel(new ImageIcon(Utils.createEmptyImage(15, 18))));
+            mainPanel.add(panel);
+        }
+
+        {
+            var panel = new JPanel();
+            panel.setOpaque(false);
+
+            try {
+                var image = Utils.getCircularImage(ImageIO.read(Main.class.getResourceAsStream("/images/profile.png")))
+                    .getScaledInstance(128, 128, Image.SCALE_SMOOTH);
+                panel.add(new JLabel(new ImageIcon(image)));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            mainPanel.add(panel);
+        }
 
         {
             var panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
             panel.add(new JLabel("Login as: "));
-            panel.add(new SwingComponentBuilder<>(new JComboBox<>(AccountType.values()))
-                .build()
-            );
+            panel.add(accountType);
 
             panel.setOpaque(false);
             mainPanel.add(panel);
@@ -64,7 +92,7 @@ public class Main {
             panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
             panel.add(
-                Utils.make(new PlaceholderTextField("E-mail"), field -> {
+                Utils.make(email, field -> {
                     field.setOpaque(false);
                     field.setBorder(BorderFactory.createCompoundBorder(
                         BorderFactory.createCompoundBorder(
@@ -76,7 +104,7 @@ public class Main {
                 })
             );
             panel.add(
-                Utils.make(new PlaceholderTextField("Password"), field -> {
+                Utils.make(password, field -> {
                     field.setOpaque(false);
                     field.setBorder(BorderFactory.createCompoundBorder(
                         BorderFactory.createCompoundBorder(
@@ -106,19 +134,23 @@ public class Main {
 
             panel.add(
                 Utils.make(new JButton("Forgot password"), button -> {
-                    button.setOpaque(false);
-
-                    // Do not set the generic types, as otherwise an error occurs in compilation.
-                    Map attributes = button.getFont().getAttributes();
-                    attributes.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
-                    button.setFont(button.getFont().deriveFont(attributes));
-
-                    button.setForeground(Color.WHITE);
-                    button.setBorder(new EmptyBorder(2, 2, 2, 2));
-                    button.setBackground(ColorUtils.NONE);
+                    ComponentHelper.makeHyperlink(button);
                 })
             );
 
+            mainPanel.add(panel);
+        }
+
+        var errorText = new JLabel("Error: Invalid email/password!");
+        errorText.setForeground(ColorUtils.fromHex(0xFF5A5A));
+        errorText.setFont(errorText.getFont().deriveFont(14f));
+
+        {
+            var panel = new JPanel();
+            panel.setOpaque(false);
+            panel.setLayout(new FlowLayout(FlowLayout.CENTER));
+            errorText.setVisible(false);
+            panel.add(errorText);
             mainPanel.add(panel);
         }
 
@@ -130,14 +162,36 @@ public class Main {
             panel.add(
                 Utils.make(new JButton("Login"), button -> {
                     button.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+                    button.addActionListener(e -> {
+                        errorText.setVisible(false);
+
+                        try {
+                            AuthManager authManager = getAuthManager((AccountType) accountType.getSelectedItem());
+                            var account = authManager.login(email.getText(), password.getText());
+
+                            switch ((AccountType) Objects.requireNonNull(accountType.getSelectedItem())) {
+                                case ADMINISTRATOR -> Admin.create(account);
+                                case CUSTOMER -> Customer.create(account);
+                                case SELLER -> Seller.create(account);
+                            }
+                        } catch (Exception exception) {
+                            errorText.setText("Error: " + exception.getMessage());
+                            errorText.setVisible(true);
+                            exception.printStackTrace();
+                        }
+                    });
                 })
             );
 
-            panel.add(
-                Utils.make(new JButton("Sign Up"), button -> {
-                    button.setAlignmentX(Component.CENTER_ALIGNMENT);
-                })
-            );
+            panel.add(Utils.make(new JPanel(new FlowLayout(FlowLayout.CENTER)), signUp -> {
+                signUp.setOpaque(false);
+                signUp.add(new JLabel("Not a user? "));
+
+                signUp.add(Utils.make(new JButton("Create an account"), button -> {
+                    ComponentHelper.makeHyperlink(button);
+                }));
+            }));
 
             mainPanel.add(panel);
         }
@@ -146,6 +200,19 @@ public class Main {
         window.getContentPane().add(mainPanel);
 
         refresh();
+    }
+
+    public static AuthManager getAuthManager(AccountType type) {
+        AuthManager authManager;
+
+        switch (type) {
+            case ADMINISTRATOR -> authManager = Admin.getAuthManager();
+            case CUSTOMER -> authManager = Customer.getAuthManager();
+            case SELLER -> authManager = Seller.getAuthManager();
+            case null, default -> throw new IllegalStateException("Invalid account type provided!");
+        }
+
+        return authManager;
     }
 
     public static void main(String[] args) {
