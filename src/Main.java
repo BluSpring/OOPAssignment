@@ -19,6 +19,7 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.io.IOException;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 public class Main {
     private static final JFrame window = new JFrame();
@@ -37,13 +38,12 @@ public class Main {
         window.repaint();
     }
 
-    public static void createRegisterScreen() {
+    public static void createRegisterScreen(AccountType type, Consumer<Account> accountConsumer) {
         reset();
 
         var mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
-        var accountType = new JComboBox<>(AccountType.values());
         var email = new PlaceholderTextField("E-mail");
         var displayName = new PlaceholderTextField("Display Name");
         var password = new PlaceholderPasswordTextField("Password");
@@ -146,14 +146,10 @@ public class Main {
                             if (!password.getText().equals(confirmPassword.getText()))
                                 throw new IllegalArgumentException("Passwords do not match!");
 
-                            AuthManager authManager = getAuthManager((AccountType) accountType.getSelectedItem());
+                            AuthManager authManager = getAuthManager(type);
                             var account = authManager.create(email.getText(), displayName.getText(), password.getText());
 
-                            switch ((AccountType) Objects.requireNonNull(accountType.getSelectedItem())) {
-                                case ADMINISTRATOR -> Admin.create(account);
-                                case CUSTOMER -> Customer.create(account);
-                                case SELLER -> Seller.create(account);
-                            }
+                            accountConsumer.accept(account);
                         } catch (Exception exception) {
                             errorText.setText("Error: " + exception.getMessage());
                             errorText.setVisible(true);
@@ -316,7 +312,9 @@ public class Main {
 
                 signUp.add(Utils.make(new JButton("Create an account"), button -> {
                     ComponentHelper.makeHyperlink(button);
-                    button.addActionListener(e -> createRegisterScreen());
+                    button.addActionListener(e -> createRegisterScreen(AccountType.CUSTOMER, account -> {
+                        Customer.create(account);
+                    }));
                 }));
             }));
 
