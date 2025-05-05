@@ -42,6 +42,12 @@ public class Main {
         window.repaint();
     }
 
+    public static void resetSizesToSmallWindow() {
+        window.setPreferredSize(new Dimension(843, 600));
+        window.setLocationRelativeTo(null);
+        window.pack();
+    }
+
     public static void createRegisterScreen(AccountType type, Consumer<Account> accountConsumer) {
         reset();
 
@@ -334,6 +340,7 @@ public class Main {
         mainPanel.setOpaque(false);
         window.getContentPane().add(mainPanel);
 
+        resetSizesToSmallWindow();
         refresh();
     }
 
@@ -352,8 +359,6 @@ public class Main {
 
     public static void main(String[] args) {
         window.setMinimumSize(new Dimension(640, 480));
-        window.setPreferredSize(new Dimension(843, 600));
-        window.setLocationRelativeTo(null);
         window.setVisible(false);
         window.setResizable(false);
         window.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);

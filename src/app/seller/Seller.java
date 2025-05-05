@@ -21,6 +21,8 @@ public class Seller {
     public static void create(Account account) {
         var window = Main.getFrame();
 
-        window.setPreferredSize(new Dimension(843, 600));
+        window.setPreferredSize(new Dimension(1024, 768));
+        window.setLocationRelativeTo(null);
+        window.pack();
     }
 }
