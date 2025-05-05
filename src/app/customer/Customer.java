@@ -1,8 +1,8 @@
-package customer;
+package app.customer;
 
-import auth.Account;
-import auth.AccountType;
-import auth.AuthManager;
+import app.auth.Account;
+import app.auth.AccountType;
+import app.auth.AuthManager;
 
 public class Customer {
     private static final AuthManager authManager = new AuthManager(AccountType.CUSTOMER);

@@ -1,8 +1,8 @@
-package admin;
+package app.admin;
 
-import auth.Account;
-import auth.AccountType;
-import auth.AuthManager;
+import app.auth.Account;
+import app.auth.AccountType;
+import app.auth.AuthManager;
 
 public class Admin {
     private static final AuthManager authManager = new AuthManager(AccountType.ADMINISTRATOR);

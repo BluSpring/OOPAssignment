@@ -1,8 +1,8 @@
-package auth;
+package app.auth;
 
-import util.ByteArrayUtils;
-import util.data.DataSerializable;
-import util.data.DataSerializers;
+import app.util.ByteArrayUtils;
+import app.util.data.DataSerializable;
+import app.util.data.DataSerializers;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;

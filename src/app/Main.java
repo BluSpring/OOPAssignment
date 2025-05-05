@@ -1,17 +1,19 @@
-import admin.Admin;
-import auth.Account;
-import auth.AccountType;
-import auth.AuthLog;
-import auth.AuthManager;
-import customer.Customer;
-import product.Order;
-import product.Product;
-import seller.Seller;
-import ui.ComponentHelper;
-import ui.PlaceholderPasswordTextField;
-import ui.PlaceholderTextField;
-import util.ColorUtils;
-import util.Utils;
+package app;
+
+import app.admin.Admin;
+import app.auth.Account;
+import app.auth.AccountType;
+import app.auth.AuthLog;
+import app.auth.AuthManager;
+import app.customer.Customer;
+import app.product.Order;
+import app.product.Product;
+import app.seller.Seller;
+import app.ui.ComponentHelper;
+import app.ui.PlaceholderPasswordTextField;
+import app.ui.PlaceholderTextField;
+import app.util.ColorUtils;
+import app.util.Utils;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;

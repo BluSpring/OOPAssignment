@@ -1,4 +1,4 @@
-package util.data;
+package app.util.data;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;

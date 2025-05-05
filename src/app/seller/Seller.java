@@ -1,8 +1,11 @@
-package seller;
+package app.seller;
 
-import auth.Account;
-import auth.AccountType;
-import auth.AuthManager;
+import app.Main;
+import app.auth.Account;
+import app.auth.AccountType;
+import app.auth.AuthManager;
+
+import java.awt.*;
 
 public class Seller {
     private static final AuthManager authManager = new AuthManager(AccountType.SELLER);
@@ -16,6 +19,8 @@ public class Seller {
     }
 
     public static void create(Account account) {
+        var window = Main.getFrame();
 
+        window.setPreferredSize(new Dimension(843, 600));
     }
 }

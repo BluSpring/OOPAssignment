@@ -1,6 +1,6 @@
-package product;
+package app.product;
 
-import util.data.DataSerializers;
+import app.util.data.DataSerializers;
 
 import java.io.File;
 import java.util.ArrayList;

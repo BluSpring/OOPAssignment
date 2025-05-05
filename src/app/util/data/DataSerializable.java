@@ -1,4 +1,4 @@
-package util.data;
+package app.util.data;
 
 public interface DataSerializable {
     void load();

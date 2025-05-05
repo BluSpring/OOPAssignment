@@ -1,6 +1,6 @@
-package ui;
+package app.ui;
 
-import util.ColorUtils;
+import app.util.ColorUtils;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;

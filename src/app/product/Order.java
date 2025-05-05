@@ -1,8 +1,8 @@
-package product;
+package app.product;
 
-import util.Utils;
-import util.data.DataSerializer;
-import util.data.DataSerializers;
+import app.util.Utils;
+import app.util.data.DataSerializer;
+import app.util.data.DataSerializers;
 
 import java.util.UUID;
 

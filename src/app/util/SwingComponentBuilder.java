@@ -1,4 +1,4 @@
-package util;
+package app.util;
 
 import javax.swing.*;
 import javax.swing.border.Border;

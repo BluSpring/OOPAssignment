@@ -1,4 +1,4 @@
-package util.data;
+package app.util.data;
 
 public abstract class DataSerializer<T> {
     private final Class<T> clazz;
