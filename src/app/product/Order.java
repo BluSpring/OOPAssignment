@@ -4,6 +4,7 @@ import app.util.Utils;
 import app.util.data.DataSerializer;
 import app.util.data.DataSerializers;
 
+import java.util.Map;
 import java.util.UUID;
 
 public class Order {
@@ -13,15 +14,17 @@ public class Order {
     private long deliveredTimestamp = -1;
     private OrderStatus status = OrderStatus.PENDING;
     private PaymentStatus paymentStatus = PaymentStatus.PENDING;
+    private final Map<String, Integer> products;
 
-    public Order(UUID account, int orderId, long orderTimestamp) {
+    public Order(UUID account, int orderId, long orderTimestamp, Map<String, Integer> products) {
         this.account = account;
         this.orderId = orderId;
         this.orderTimestamp = orderTimestamp;
+        this.products = products;
     }
 
-    public Order(UUID account, int orderId, long orderTimestamp, long deliveredTimestamp, OrderStatus status, PaymentStatus paymentStatus) {
-        this(account, orderId, orderTimestamp);
+    public Order(UUID account, int orderId, long orderTimestamp, long deliveredTimestamp, OrderStatus status, PaymentStatus paymentStatus, Map<String, Integer> products) {
+        this(account, orderId, orderTimestamp, products);
         this.deliveredTimestamp = deliveredTimestamp;
         this.status = status;
         this.paymentStatus = paymentStatus;
@@ -59,6 +62,10 @@ public class Order {
         return paymentStatus;
     }
 
+    public Map<String, Integer> getProducts() {
+        return products;
+    }
+
     public static class Serializer extends DataSerializer<Order> {
         public Serializer() {
             super(Order.class);
@@ -66,14 +73,30 @@ public class Order {
 
         @Override
         public String serialize(Order value) {
-            return DataSerializers.writeSegmentedLine(Utils.allToStrings(value.getAccountUUID(), value.getOrderId(), value.getOrderTimestamp(), value.getDeliveredTimestamp(), value.getStatus().name(), value.getPaymentStatus().name()));
+            return DataSerializers.writeSegmentedLine(Utils.allToStrings(
+                value.getAccountUUID(),
+                value.getOrderId(),
+                value.getOrderTimestamp(),
+                value.getDeliveredTimestamp(),
+                value.getStatus().name(),
+                value.getPaymentStatus().name(),
+                DataSerializers.getSerializer("product_map").serialize(value.getProducts())
+            ));
         }
 
         @Override
         public Order deserialize(String data) {
             var split = DataSerializers.readSegmentedLine(data);
 
-            return new Order(UUID.fromString(split.get(0)), Integer.parseInt(split.get(1)), Long.parseLong(split.get(2)), Long.parseLong(split.get(3)), OrderStatus.valueOf(split.get(4)), PaymentStatus.valueOf(split.get(5)));
+            return new Order(
+                UUID.fromString(split.get(0)),
+                Integer.parseInt(split.get(1)),
+                Long.parseLong(split.get(2)),
+                Long.parseLong(split.get(3)),
+                OrderStatus.valueOf(split.get(4)),
+                PaymentStatus.valueOf(split.get(5)),
+                (Map<String, Integer>) DataSerializers.getSerializer("product_map").deserialize(split.get(6))
+            );
         }
     }
 

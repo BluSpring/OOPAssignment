@@ -16,8 +16,8 @@ public class DataSerializers {
         return serializers.put(name, serializer);
     }
 
-    public static DataSerializer<?> getSerializer(String name) {
-        return serializers.get(name);
+    public static <T> DataSerializer<T> getSerializer(String name) {
+        return (DataSerializer<T>) serializers.get(name);
     }
 
     public static String getSerializerName(DataSerializer<?> serializer) {
@@ -34,6 +34,9 @@ public class DataSerializers {
 
     public static <T> DataSerializer<T> getSerializerFor(Class<T> clazz) {
         for (DataSerializer<?> serializer : serializers.values()) {
+            if (serializer.getSerializableClass() == null)
+                continue;
+
             if (serializer.getSerializableClass().isAssignableFrom(clazz)) {
                 return (DataSerializer<T>) serializer;
             }

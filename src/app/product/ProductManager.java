@@ -8,34 +8,40 @@ import java.util.Iterator;
 import java.util.List;
 
 public class ProductManager {
-    private final List<Product> products = new ArrayList<>();
-    private final List<Order> orders = new ArrayList<>();
+    private static final ProductManager instance = new ProductManager();
 
-    private final File productsFile = new File("products.txt");
-    private final File ordersFile = new File("orders.txt");
-
-    public ProductManager() {
-        this.load();
+    public ProductManager getInstance() {
+        return instance;
     }
 
-    public Iterator<Order> orders() {
-        return this.orders.iterator();
+    private final List<Product> products = new ArrayList<>();
+    private final File productsFile = new File("products.txt");
+
+    private ProductManager() {
+        this.load();
     }
 
     public Iterator<Product> products() {
         return this.products.iterator();
     }
 
+    public Product getProduct(String barcode) {
+        for (Product product : products) {
+            if (product.getBarcode().equals(barcode)) {
+                return product;
+            }
+        }
+
+        return null;
+    }
+
     public void load() {
         products.clear();
-        orders.clear();
 
         DataSerializers.deserializeLines(Product.class, productsFile, products);
-        DataSerializers.deserializeLines(Order.class, ordersFile, orders);
     }
 
     public void save() {
         DataSerializers.serializeValues(Product.class, productsFile, products);
-        DataSerializers.serializeValues(Order.class, ordersFile, orders);
     }
 }

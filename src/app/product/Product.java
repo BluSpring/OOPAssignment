@@ -4,6 +4,9 @@ import app.util.Utils;
 import app.util.data.DataSerializer;
 import app.util.data.DataSerializers;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class Product {
@@ -76,7 +79,38 @@ public class Product {
         }
     }
 
+    public static class MapSerializer extends DataSerializer<Map<String, Integer>> {
+        public MapSerializer() {
+            super(null);
+        }
+
+        @Override
+        public String serialize(Map<String, Integer> value) {
+            var list = new ArrayList<String>();
+            value.forEach((barcode, quantity) -> {
+                list.add(barcode + ":" + quantity);
+            });
+
+            return DataSerializers.writeSegmentedLine(list);
+        }
+
+        @Override
+        public Map<String, Integer> deserialize(String data) {
+            var segments = DataSerializers.readSegmentedLine(data);
+            var products = new HashMap<String, Integer>();
+
+            for (String s : segments) {
+                var split = s.split(":");
+
+                products.put(split[0], Integer.parseInt(split[1]));
+            }
+
+            return products;
+        }
+    }
+
     static {
+        DataSerializers.register("product_map", new MapSerializer());
         DataSerializers.register("product", new Serializer());
     }
 

@@ -7,7 +7,9 @@ import app.auth.AuthLog;
 import app.auth.AuthManager;
 import app.customer.Customer;
 import app.product.Order;
+import app.product.Payment;
 import app.product.Product;
+import app.product.ShoppingCart;
 import app.seller.Seller;
 import app.ui.ComponentHelper;
 import app.ui.PlaceholderPasswordTextField;
@@ -391,6 +393,8 @@ public class Main {
         AuthLog.init();
         Order.init();
         Product.init();
+        Payment.init();
+        ShoppingCart.init();
 
         Admin.init();
         Customer.init();
