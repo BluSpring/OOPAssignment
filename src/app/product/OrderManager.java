@@ -11,7 +11,7 @@ import java.util.*;
 public class OrderManager {
     private static final OrderManager instance = new OrderManager();
 
-    public OrderManager getInstance() {
+    public static OrderManager getInstance() {
         return instance;
     }
 

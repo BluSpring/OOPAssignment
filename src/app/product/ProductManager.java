@@ -1,5 +1,6 @@
 package app.product;
 
+import app.auth.Account;
 import app.util.data.DataSerializers;
 
 import java.io.File;
@@ -10,7 +11,7 @@ import java.util.List;
 public class ProductManager {
     private static final ProductManager instance = new ProductManager();
 
-    public ProductManager getInstance() {
+    public static ProductManager getInstance() {
         return instance;
     }
 
@@ -23,6 +24,14 @@ public class ProductManager {
 
     public Iterator<Product> products() {
         return this.products.iterator();
+    }
+
+    public Product addProduct(String barcode, Account seller, String name, String description, double price) {
+        var product = new Product(seller.getUUID(), barcode, name, description, price, 0, 0.0);
+        products.add(product);
+
+        this.save();
+        return product;
     }
 
     public Product getProduct(String barcode) {

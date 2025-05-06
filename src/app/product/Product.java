@@ -12,15 +12,17 @@ import java.util.UUID;
 public class Product {
     private final UUID seller;
     private final String barcode;
-    private final String name;
+    private String name;
+    private String description;
     private double price;
     private int stock;
     private double discount;
 
-    public Product(UUID seller, String barcode, String name, double price, int stock, double discount) {
+    public Product(UUID seller, String barcode, String name, String description, double price, int stock, double discount) {
         this.seller = seller;
         this.barcode = barcode;
         this.name = name;
+        this.description = description;
         this.price = price;
         this.stock = stock;
         this.discount = discount;
@@ -36,6 +38,22 @@ public class Product {
 
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public double getPriceWithDiscount() {
+        return price - (price * discount);
     }
 
     public double getPrice() {
@@ -69,13 +87,13 @@ public class Product {
 
         @Override
         public String serialize(Product value) {
-            return DataSerializers.writeSegmentedLine(Utils.allToStrings(value.getSeller(), value.getBarcode(), value.getName(), value.getPrice(), value.getStock(), value.getDiscount()));
+            return DataSerializers.writeSegmentedLine(Utils.allToStrings(value.getSeller(), value.getBarcode(), value.getName(), value.getDescription(), value.getPrice(), value.getStock(), value.getDiscount()));
         }
 
         @Override
         public Product deserialize(String data) {
             var split = DataSerializers.readSegmentedLine(data);
-            return new Product(UUID.fromString(split.get(0)), split.get(1), split.get(2), Double.parseDouble(split.get(3)), Integer.parseInt(split.get(4)), Double.parseDouble(split.get(5)));
+            return new Product(UUID.fromString(split.get(0)), split.get(1), split.get(2), split.get(3), Double.parseDouble(split.get(4)), Integer.parseInt(split.get(5)), Double.parseDouble(split.get(6)));
         }
     }
 

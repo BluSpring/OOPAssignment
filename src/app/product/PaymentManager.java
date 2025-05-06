@@ -11,7 +11,7 @@ import java.util.UUID;
 public class PaymentManager {
     private static final PaymentManager instance = new PaymentManager();
 
-    public PaymentManager getInstance() {
+    public static PaymentManager getInstance() {
         return instance;
     }
 
@@ -22,10 +22,19 @@ public class PaymentManager {
         this.load();
     }
 
-    public Payment createPayment(UUID orderId, double amount) {
+    public Payment createPayment(int orderId, double amount) {
         Payment payment = new Payment(UUID.randomUUID(), orderId, amount, PaymentStatus.PENDING);
         payments.add(payment);
         return payment;
+    }
+
+    public Payment getPaymentFor(int orderId) {
+        for (Payment payment : this.payments) {
+            if (payment.getOrderId() == orderId)
+                return payment;
+        }
+
+        return null;
     }
 
     public Payment getPayment(UUID paymentId) {

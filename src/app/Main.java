@@ -6,10 +6,7 @@ import app.auth.AccountType;
 import app.auth.AuthLog;
 import app.auth.AuthManager;
 import app.customer.Customer;
-import app.product.Order;
-import app.product.Payment;
-import app.product.Product;
-import app.product.ShoppingCart;
+import app.product.*;
 import app.seller.Seller;
 import app.ui.ComponentHelper;
 import app.ui.PlaceholderPasswordTextField;
@@ -27,6 +24,8 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 public class Main {
+    public static final boolean IS_TESTING = true;
+
     private static final JFrame window = new JFrame();
     public static Color topGradient = Color.WHITE;
     public static Color bottomGradient = Color.WHITE;
@@ -400,8 +399,31 @@ public class Main {
         Customer.init();
         Seller.init();
 
+        if (IS_TESTING) { // Add testing data
+            var customer = Customer.getAuthManager().getAccountByEmail("test@test.com") == null ?
+                Customer.getAuthManager().create("test@test.com", "Test Account", "testing1234")
+                : Customer.getAuthManager().getAccountByEmail("test@test.com");
+
+            var seller = Seller.getAuthManager().getAccountByEmail("test@test.com") == null ?
+                Seller.getAuthManager().create("test@test.com", "Test Account", "testing1234")
+                : Seller.getAuthManager().getAccountByEmail("test@test.com");
+
+            var product = ProductManager.getInstance().getProduct("0123456789");
+            if (product == null)
+                product = ProductManager.getInstance().addProduct("0123456789", seller, "Test Product", "Description stuff yes yes", 69.42);
+
+            var product2 = ProductManager.getInstance().getProduct("01234567899");
+            if (product2 == null)
+                product2 = ProductManager.getInstance().addProduct("01234567899", seller, "Test Product 2", "Description stuff yes and with a long one at that too probably idk how long I can go or speak for but this is just an incredibly long description, maybe it can go longer, oh yeah also this is \"testing\" my serialization code too lmao.", 420.69);
+
+            OrderManager.getInstance().addToCart(customer.getUUID(), product, 5);
+            OrderManager.getInstance().placeOrder(customer.getUUID());
+        }
+
         createLoginScreen();
-        Seller.create(new Account(AccountType.SELLER, UUID.randomUUID(), "test@test.com", "Test Account", ""));
+
+        // TODO: remove in production
+        Customer.create(new Account(AccountType.CUSTOMER, UUID.randomUUID(), "test@test.com", "Test Account", ""));
 
         window.setVisible(true);
     }
