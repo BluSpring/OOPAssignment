@@ -21,6 +21,7 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.io.IOException;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 public class Main {
@@ -396,6 +397,7 @@ public class Main {
         Seller.init();
 
         createLoginScreen();
+        Seller.create(new Account(AccountType.SELLER, UUID.randomUUID(), "test@test.com", "Test Account", ""));
 
         window.setVisible(true);
     }
