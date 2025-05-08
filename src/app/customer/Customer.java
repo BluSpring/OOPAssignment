@@ -7,10 +7,13 @@ import app.auth.AuthManager;
 import app.product.Product;
 import app.product.ProductManager;
 import app.seller.Seller;
+import app.ui.MultilineTextLabel;
 import app.util.ColorUtils;
 import app.util.Utils;
 
 import javax.swing.*;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.font.TextAttribute;
@@ -55,21 +58,24 @@ public class Customer {
                 infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
                 infoPanel.add(new JLabel(product.getName()));
                 infoPanel.add(new JLabel("EAN: " + product.getBarcode()));
-                infoPanel.add(new JLabel("Seller: " + Seller.getAuthManager().getAccountByUUID(product.getSeller()).getDisplayName()));
+                infoPanel.add(Utils.make(new JLabel("Seller: " + Seller.getAuthManager().getAccountByUUID(product.getSeller()).getDisplayName()), label -> {
+                    label.setFont(label.getFont().deriveFont(11.5f));
+                }));
 
                 panel.add(infoPanel);
 
-                var scrollPane = new JScrollPane(Utils.make(new JEditorPane(), pane -> {
-                    /*pane.setText(product.getDescription());
-                    pane.setEditable(false);
-                    pane.setOpaque(false);
-                    pane.setBackground(ColorUtils.NONE);*/
-
-                    pane.setContentType("text/html");
-                    pane.setText("<!DOCTYPE html><html><body><div style=\"width: 50px; height: 50px; background-color: #FFFF00\"><p>Testing here</p></div></body></html>");
+                var scrollPane = new JScrollPane(Utils.make(new MultilineTextLabel(), pane -> {
+                    pane.setBorder(new EmptyBorder(0, 2, 2, 2));
+                    pane.setForeground(Color.WHITE);
+                    pane.setText(product.getDescription());
                 }));
+                scrollPane.setBorder(new CompoundBorder(
+                    new EmptyBorder(0, 3, 2, 3),
+                    new LineBorder(new Color(0f, 0f, 0f, 0.45f), 1)
+                ));
+                scrollPane.getViewport().setBackground(new Color(0f, 0f, 0f, 0.2f));
                 scrollPane.setOpaque(false);
-                scrollPane.setPreferredSize(new Dimension(300, 60));
+                scrollPane.setPreferredSize(new Dimension(400, 50));
                 scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
                 scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 

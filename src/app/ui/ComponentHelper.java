@@ -1,6 +1,7 @@
 package app.ui;
 
 import app.util.ColorUtils;
+import app.util.Utils;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -46,6 +47,19 @@ public class ComponentHelper {
                 component.setForeground(originalColor);
             }
         });
+    }
+
+    public static JEditorPane loadView(String id) {
+        var editor = new JEditorPane();
+        editor.setContentType("text/html");
+        editor.setText(Utils.loadView(id));
+        editor.setEditable(false);
+        editor.addCaretListener(e -> {
+            editor.getCaret().setVisible(false);
+            editor.setOpaque(false);
+        });
+
+        return editor;
     }
 
     /**

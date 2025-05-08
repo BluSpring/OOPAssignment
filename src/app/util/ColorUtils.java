@@ -11,11 +11,7 @@ public class ColorUtils {
      * @return The AWT Color with the specified values
      */
     public static Color fromHex(int hexRGB) {
-        var r = (hexRGB >> 16) & 255;
-        var g = (hexRGB >> 8) & 255;
-        var b = hexRGB & 255;
-
-        return fromRGB(r, g, b);
+        return new Color(hexRGB);
     }
 
     /**
@@ -26,7 +22,6 @@ public class ColorUtils {
      * @return The AWT Color with the specified values
      */
     public static Color fromRGB(int r, int g, int b) {
-        var hsb = Color.RGBtoHSB(r, g, b, null);
-        return Color.getHSBColor(hsb[0], hsb[1], hsb[2]);
+        return new Color(r, g, b);
     }
 }

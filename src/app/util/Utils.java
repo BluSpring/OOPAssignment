@@ -1,8 +1,13 @@
 package app.util;
 
+import app.Main;
+
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
@@ -27,6 +32,14 @@ public class Utils {
         }
 
         return list;
+    }
+
+    public static String loadView(String id) {
+        try (InputStream view = Main.class.getResourceAsStream("/views/" + id + ".html")) {
+            return new String(view.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static <T> T make(T object, Consumer<T> consumer) {
