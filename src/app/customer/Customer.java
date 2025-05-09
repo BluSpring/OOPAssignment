@@ -8,6 +8,7 @@ import app.product.Product;
 import app.product.ProductManager;
 import app.seller.Seller;
 import app.ui.MultilineTextLabel;
+import app.ui.ScrollablePanel;
 import app.util.ColorUtils;
 import app.util.Utils;
 
@@ -40,18 +41,26 @@ public class Customer {
         mainPanel.setOpaque(false);
 
         {
-            var contentPanel = new JPanel();
+            var contentPanel = new ScrollablePanel();
             contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
             contentPanel.setOpaque(false);
 
+            var mainScrollPane = new JScrollPane(contentPanel);
+            mainScrollPane.setBorder(new LineBorder(new Color(0f, 0f, 0f, 0.2f), 1));
+            mainScrollPane.setOpaque(false);
+
+            mainScrollPane.setPreferredSize(new Dimension(745, 703));
+            mainScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+            mainScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+
             for (Iterator<Product> it = ProductManager.getInstance().products(); it.hasNext();) {
+                var product = it.next();
                 var panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
                 panel.setPreferredSize(new Dimension(window.getWidth() - 100, 60));
+                panel.setMaximumSize(new Dimension(window.getWidth() - 100, 60));
                 panel.setBackground(ColorUtils.fromHex(0x0047D6));
                 panel.setBorder(new LineBorder(Color.BLACK, 1, true));
-
-                var product = it.next();
 
                 var infoPanel = new JPanel();
                 infoPanel.setOpaque(false);
@@ -104,10 +113,18 @@ public class Customer {
 
                 panel.add(numbersPanel);
 
+                var spinner = new JSpinner(new SpinnerNumberModel(Math.min(1, product.getStock()), 0, product.getStock(), 1));
+
+                panel.add(spinner);
+
+                panel.add(Utils.make(new JButton(new ImageIcon(Utils.resizeImage("shopping_cart.png", 24, 24))), button -> {
+                    button.setPreferredSize(new Dimension(24, 24));
+                }));
+
                 contentPanel.add(panel);
             }
 
-            mainPanel.add(contentPanel);
+            mainPanel.add(mainScrollPane);
         }
 
         window.getContentPane().add(mainPanel);

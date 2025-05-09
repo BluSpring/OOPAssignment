@@ -2,6 +2,7 @@ package app.util;
 
 import app.Main;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
@@ -45,6 +46,28 @@ public class Utils {
     public static <T> T make(T object, Consumer<T> consumer) {
         consumer.accept(object);
         return object;
+    }
+
+    public static BufferedImage getImage(String path) {
+        try {
+            return ImageIO.read(Main.class.getResourceAsStream("/images/" + path));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static BufferedImage resizeImage(String path, int width, int height) {
+        var original = getImage(path);
+        var output = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        var g2 = output.createGraphics();
+
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+
+        g2.drawImage(original, 0, 0, width, height, null);
+        g2.dispose();
+
+        return output;
     }
 
     public static BufferedImage getCircularImage(BufferedImage image) {

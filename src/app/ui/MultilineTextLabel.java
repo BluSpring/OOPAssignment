@@ -5,11 +5,9 @@ import java.awt.*;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.ArrayList;
-import java.util.List;
 
 public class MultilineTextLabel extends JComponent implements MouseWheelListener {
     private String text = "";
-    private final List<String> lines = new ArrayList<>();
     private int currentScrollY = 0;
     private boolean allowsScroll = false;
 
