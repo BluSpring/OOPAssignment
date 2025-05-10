@@ -15,6 +15,10 @@ import java.io.IOException;
 public class SharedScreens {
     // Account Details screen
     public static void showAccountDetailsScreen(AuthManager authManager, Account account, Runnable onExit) {
+        showAccountDetailsScreen(authManager, account, account, onExit);
+    }
+
+    public static void showAccountDetailsScreen(AuthManager authManager, Account account, Account accountToNavigate, Runnable onExit) {
         Main.reset();
 
         var window = Main.getFrame();
@@ -79,13 +83,15 @@ public class SharedScreens {
             panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
             panel.setOpaque(false);
 
-            panel.add(Utils.make(new JPanel(new FlowLayout(FlowLayout.CENTER)), changePassword -> {
-                changePassword.setOpaque(false);
-                changePassword.add(Utils.make(new JButton("Change Password"), button -> {
-                    ComponentHelper.makeHyperlink(button);
-                    button.addActionListener(e -> showChangePasswordScreen(authManager, account, onExit));
+            if (account == accountToNavigate) {
+                panel.add(Utils.make(new JPanel(new FlowLayout(FlowLayout.CENTER)), changePassword -> {
+                    changePassword.setOpaque(false);
+                    changePassword.add(Utils.make(new JButton("Change Password"), button -> {
+                        ComponentHelper.makeHyperlink(button);
+                        button.addActionListener(e -> showChangePasswordScreen(authManager, account, onExit));
+                    }));
                 }));
-            }));
+            }
 
             panel.add(
                 Utils.make(new JButton("Save"), button -> {
@@ -125,15 +131,17 @@ public class SharedScreens {
                 })
             );
 
-            panel.add(
-                Utils.make(new JButton("Log Out"), button -> {
-                    button.setAlignmentX(Component.CENTER_ALIGNMENT);
+            if (accountToNavigate == account) {
+                panel.add(
+                    Utils.make(new JButton("Log Out"), button -> {
+                        button.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-                    button.addActionListener(e -> {
-                        Main.createLoginScreen();
-                    });
-                })
-            );
+                        button.addActionListener(e -> {
+                            Main.createLoginScreen();
+                        });
+                    })
+                );
+            }
 
             mainPanel.add(panel);
         }

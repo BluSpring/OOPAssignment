@@ -2,6 +2,8 @@ package app.admin;
 
 import app.Main;
 import app.auth.Account;
+import app.auth.AccountType;
+import app.auth.AuthManager;
 import app.product.Product;
 import app.product.ProductCategory;
 import app.product.ProductManager;
@@ -51,8 +53,10 @@ public class AdminViews {
         Main.refresh();
     }
 
-    public static void createManageSellersScreen(Account account) {
+    public static void createManageAccountsScreen(AccountType accountType, Account account) {
         Main.reset();
+
+        AuthManager authManager = accountType == AccountType.ADMINISTRATOR ? Admin.getAuthManager() : Seller.getAuthManager();
 
         var window = Main.getFrame();
         window.setPreferredSize(new Dimension(1280, 768));
@@ -61,13 +65,84 @@ public class AdminViews {
 
         var mainPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         mainPanel.setOpaque(false);
-        mainPanel.add(createSidebar(account));
+        mainPanel.add(Utils.make(createSidebar(account), sidebar -> {
+            sidebar.add(Utils.make(new JButton("Create Account"), button -> {
+                button.addActionListener(e -> {
+                    Main.createRegisterScreen(accountType, $ -> createManageAccountsScreen(accountType, account));
+                });
+            }));
+        }));
 
         var secondPanel = new JPanel();
         secondPanel.setOpaque(false);
 
         {
+            var contentPanel = new ScrollablePanel();
+            contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+            contentPanel.setOpaque(false);
 
+            var mainScrollPane = new JScrollPane(contentPanel);
+            mainScrollPane.setBorder(new LineBorder(new Color(0f, 0f, 0f, 0.2f), 1));
+            mainScrollPane.setOpaque(false);
+
+            mainScrollPane.setPreferredSize(new Dimension(PANEL_WIDTH, 650));
+            mainScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+            mainScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+
+            if (authManager.getAccounts().isEmpty()) {
+                var panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+                panel.setOpaque(false);
+
+                panel.add(Utils.make(new JLabel("No accounts exist!"), label -> {
+                    label.setForeground(Color.BLACK);
+                }));
+
+                contentPanel.add(panel);
+            }
+
+            for (Account acc : authManager.getAccounts()) {
+                var panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
+                panel.setPreferredSize(new Dimension(PANEL_WIDTH  - 2, 120));
+                panel.setMaximumSize(new Dimension(PANEL_WIDTH  - 2, 120));
+                panel.setBackground(ColorUtils.fromHex(0x0047D6));
+                panel.setBorder(new LineBorder(Color.BLACK, 1, true));
+
+                var infoPanel = new JPanel();
+                infoPanel.setOpaque(false);
+                infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+                infoPanel.add(new JLabel("Email: " + acc.getEmail()));
+                infoPanel.add(new JLabel("Name: " + acc.getDisplayName()));
+
+                panel.add(infoPanel);
+
+                panel.add(Utils.make(new JButton(new ImageIcon(Utils.resizeImage("pencil.png", 24, 24))), button -> {
+                    button.setPreferredSize(new Dimension(24, 24));
+                    button.setToolTipText("Edit");
+
+                    button.addActionListener(e -> {
+                        SharedScreens.showAccountDetailsScreen(authManager, acc, account, () -> createManageAccountsScreen(accountType, account));
+                    });
+                }));
+
+                panel.add(Utils.make(new JButton(new ImageIcon(Utils.resizeImage("trash_bin.png", 24, 24))), button -> {
+                    button.setPreferredSize(new Dimension(24, 24));
+                    button.setToolTipText("Delete");
+
+                    if (account == acc) {
+                        button.setEnabled(false);
+                    }
+
+                    button.addActionListener(e -> {
+                        authManager.deleteAccount(account);
+                        createManageAccountsScreen(accountType, account);
+                    });
+                }));
+
+                contentPanel.add(panel);
+            }
+
+            secondPanel.add(mainScrollPane);
         }
 
         mainPanel.add(secondPanel);
@@ -201,7 +276,8 @@ public class AdminViews {
         {
             sidebar.add(makeDropdownPanel("Administrative", java.util.List.of(
                 new DropdownItem("Home", () -> createHomeScreen(account)),
-                new DropdownItem("Manage Sellers", () -> createManageSellersScreen(account)),
+                new DropdownItem("Manage Admins", () -> createManageAccountsScreen(AccountType.ADMINISTRATOR, account)),
+                new DropdownItem("Manage Sellers", () -> createManageAccountsScreen(AccountType.SELLER, account)),
                 new DropdownItem("Manage Categories", () -> createManageCategoriesScreen(account))
             )));
         }

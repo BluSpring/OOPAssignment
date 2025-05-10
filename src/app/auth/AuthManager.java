@@ -51,6 +51,10 @@ public class AuthManager implements Iterable<Account>, DataSerializable {
         return this.accounts.iterator();
     }
 
+    public Collection<Account> getAccounts() {
+        return this.accounts;
+    }
+
     public Iterator<AuthLog> authLogIterator() {
         return this.authLogs.iterator();
     }
@@ -115,6 +119,11 @@ public class AuthManager implements Iterable<Account>, DataSerializable {
         this.save();
 
         return account;
+    }
+
+    public void deleteAccount(Account account) {
+        this.accounts.remove(account);
+        this.save();
     }
 
     public Account login(String email, String password) {
