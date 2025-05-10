@@ -60,6 +60,15 @@ public class OrderManager {
         return order;
     }
 
+    public int countCartItems(UUID customerId) {
+        var count = 0;
+        for (Integer value : getCart(customerId).products().values()) {
+            count += value;
+        }
+
+        return count;
+    }
+
     public ShoppingCart getCart(UUID customerId) {
         for (ShoppingCart cart : customerCarts) {
             if (cart.customerID().equals(customerId))

@@ -44,12 +44,7 @@ public class Customer {
 
         var cartButton = new JButton(new ImageIcon(Utils.resizeImage("shopping_cart.png", 24, 24)));
         var updateCartLabel = (Runnable) () -> {
-            var count = 0;
-            for (Integer value : OrderManager.getInstance().getCart(account.getUUID()).products().values()) {
-                count += value;
-            }
-
-            cartButton.setText(count + " items");
+            cartButton.setText(OrderManager.getInstance().countCartItems(account.getUUID()) + " items");
         };
 
         {
@@ -199,6 +194,8 @@ public class Customer {
         var mainPanel = new JPanel();
         mainPanel.setOpaque(false);
 
+        var placeOrderButton = new JButton("Place Order");
+
         {
             var panel = new JPanel();
             panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -216,6 +213,15 @@ public class Customer {
             panel.add(Utils.make(new JButton("Exit"), button -> {
                 button.addActionListener(e -> {
                     create(account);
+                });
+            }));
+
+            panel.add(Utils.make(placeOrderButton, button -> {
+                button.setEnabled(OrderManager.getInstance().countCartItems(account.getUUID()) > 0);
+
+                button.addActionListener(e -> {
+                    OrderManager.getInstance().placeOrder(account.getUUID());
+                    showShoppingCartScreen(account);
                 });
             }));
 
