@@ -59,11 +59,16 @@ public class Customer {
             }));
 
             panel.add(Utils.make(cartButton, button -> {
-                button.setText("0x");
+                var count = 0;
+                for (Integer value : OrderManager.getInstance().getCart(account.getUUID()).products().values()) {
+                    count += value;
+                }
+
+                button.setText(count + " items");
                 button.setToolTipText("View Shopping Cart");
 
                 button.addActionListener(e -> {
-                    // TODO: open Shopping Cart view
+                    showShoppingCartScreen(account);
                 });
             }));
 
@@ -169,6 +174,163 @@ public class Customer {
 
                 contentPanel.add(panel);
             }
+
+            mainPanel.add(mainScrollPane);
+        }
+
+        window.getContentPane().add(mainPanel);
+
+        window.setPreferredSize(new Dimension(1024, 768));
+        window.setLocationRelativeTo(null);
+        window.pack();
+
+        Main.refresh();
+    }
+
+    public static void showShoppingCartScreen(Account account) {
+        Main.reset();
+
+        var window = Main.getFrame();
+
+        var mainPanel = new JPanel();
+        mainPanel.setOpaque(false);
+
+        {
+            var panel = new JPanel();
+            panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+            panel.setOpaque(false);
+
+            panel.add(Utils.make(new JButton(account.getDisplayName(), new ImageIcon(Utils.getCircularImage(Utils.resizeImage("profile.png", 24, 24)))), button -> {
+                button.setOpaque(false);
+                button.setToolTipText("View Account Details");
+
+                button.addActionListener(e -> {
+                    SharedScreens.showAccountDetailsScreen(getAuthManager(), account, () -> create(account));
+                });
+            }));
+
+            panel.add(Utils.make(new JButton("Exit"), button -> {
+                button.addActionListener(e -> {
+                    create(account);
+                });
+            }));
+
+            mainPanel.add(panel);
+        }
+
+        {
+            var contentPanel = new ScrollablePanel();
+            contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+            contentPanel.setOpaque(false);
+
+            var mainScrollPane = new JScrollPane(contentPanel);
+            mainScrollPane.setBorder(new LineBorder(new Color(0f, 0f, 0f, 0.2f), 1));
+            mainScrollPane.setOpaque(false);
+
+            mainScrollPane.setPreferredSize(new Dimension(745, 703));
+            mainScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+            mainScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+
+            var cart = OrderManager.getInstance().getCart(account.getUUID());
+
+            if (cart.products().isEmpty()) {
+                var panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+                panel.setOpaque(false);
+
+                panel.add(Utils.make(new JLabel("No items added in cart!"), label -> {
+                    label.setForeground(Color.BLACK);
+                }));
+
+                contentPanel.add(panel);
+            }
+
+            cart.products().forEach((productBarcode, amount) -> {
+                var product = ProductManager.getInstance().getProduct(productBarcode);
+                var panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
+                if (Math.min(product.getStock(), amount) <= 0)
+                    return;
+
+                panel.setPreferredSize(new Dimension(window.getWidth() - 100, 60));
+                panel.setMaximumSize(new Dimension(window.getWidth() - 100, 60));
+                panel.setBackground(ColorUtils.fromHex(0x0047D6));
+                panel.setBorder(new LineBorder(Color.BLACK, 1, true));
+
+                var infoPanel = new JPanel();
+                infoPanel.setOpaque(false);
+                infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+                infoPanel.add(new JLabel(product.getName()));
+                infoPanel.add(new JLabel("EAN: " + product.getBarcode()));
+                infoPanel.add(Utils.make(new JLabel("Seller: " + Seller.getAuthManager().getAccountByUUID(product.getSeller()).getDisplayName()), label -> {
+                    label.setFont(label.getFont().deriveFont(11.5f));
+                }));
+
+                panel.add(infoPanel);
+
+                var scrollPane = new JScrollPane(Utils.make(new MultilineTextLabel(), pane -> {
+                    pane.setBorder(new EmptyBorder(0, 2, 2, 2));
+                    pane.setForeground(Color.WHITE);
+                    pane.setText(product.getDescription());
+                }));
+                scrollPane.setBorder(new CompoundBorder(
+                    new EmptyBorder(0, 3, 2, 3),
+                    new LineBorder(new Color(0f, 0f, 0f, 0.45f), 1)
+                ));
+                scrollPane.getViewport().setBackground(new Color(0f, 0f, 0f, 0.2f));
+                scrollPane.setOpaque(false);
+                scrollPane.setPreferredSize(new Dimension(400, 50));
+                scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+                scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+                panel.add(scrollPane);
+
+                var numbersPanel = new JPanel();
+                numbersPanel.setOpaque(false);
+                numbersPanel.setLayout(new BoxLayout(numbersPanel, BoxLayout.Y_AXIS));
+
+                var pricePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+                pricePanel.setOpaque(false);
+                if (product.getDiscount() > 0) {
+                    pricePanel.add(new JLabel("Price: RM " + product.getPriceWithDiscount()));
+                    pricePanel.add(Utils.make(new JLabel(" RM " + product.getPrice()), label -> {
+                        Map attributes = label.getFont().getAttributes();
+                        attributes.put(TextAttribute.STRIKETHROUGH, TextAttribute.STRIKETHROUGH_ON);
+
+                        label.setFont(new Font(attributes));
+                    }));
+                } else {
+                    pricePanel.add(new JLabel("Price: RM " + product.getPrice()));
+                }
+
+                numbersPanel.add(pricePanel);
+                numbersPanel.add(Utils.make(new JLabel(product.getStock() + " in stock"), label -> {
+                    if (product.getStock() <= 0) // Display red if out of stock.
+                        label.setForeground(Color.RED);
+                }));
+
+                panel.add(numbersPanel);
+
+                var spinner = new JSpinner(new SpinnerNumberModel(Math.min(product.getStock(), amount), 1, product.getStock(), 1));
+                spinner.addChangeListener(e -> {
+                    cart.products().put(productBarcode, (int) spinner.getValue());
+                    OrderManager.getInstance().save();
+                });
+
+                panel.add(spinner);
+
+                panel.add(Utils.make(new JButton("X"), button -> {
+                    button.setPreferredSize(new Dimension(24, 24));
+                    button.setToolTipText("Remove from Cart");
+
+                    button.addActionListener(e -> {
+                        cart.products().remove(productBarcode);
+                        OrderManager.getInstance().save();
+                        showShoppingCartScreen(account);
+                    });
+                }));
+
+                contentPanel.add(panel);
+            });
 
             mainPanel.add(mainScrollPane);
         }
