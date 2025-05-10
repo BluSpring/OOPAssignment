@@ -83,8 +83,8 @@ public class Order {
                 value.getAccountUUID(),
                 value.getOrderId(),
                 value.getOrderTimestamp(),
-                value.getTotalCost(),
                 value.getDeliveredTimestamp(),
+                value.getTotalCost(),
                 value.getStatus().name(),
                 value.getPaymentStatus().name(),
                 DataSerializers.getSerializer("product_map").serialize(value.getProducts())

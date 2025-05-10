@@ -437,6 +437,7 @@ public class Customer {
                 var scrollPane = new JScrollPane(Utils.make(new ScrollablePanel(), pane -> {
                     pane.setBorder(new EmptyBorder(0, 2, 2, 2));
                     pane.setForeground(Color.WHITE);
+                    pane.setOpaque(false);
 
                     order.getProducts().forEach((barcode, amount) -> {
                         var product = ProductManager.getInstance().getProduct(barcode);
