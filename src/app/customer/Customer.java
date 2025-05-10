@@ -8,19 +8,18 @@ import app.product.OrderManager;
 import app.product.Product;
 import app.product.ProductManager;
 import app.seller.Seller;
-import app.ui.*;
+import app.ui.MultilineTextLabel;
+import app.ui.ScrollablePanel;
+import app.ui.SharedScreens;
 import app.util.ColorUtils;
 import app.util.Utils;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.awt.font.TextAttribute;
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -55,7 +54,7 @@ public class Customer {
                 button.setToolTipText("View Account Details");
 
                 button.addActionListener(e -> {
-                    showAccountDetailsScreen(account);
+                    SharedScreens.showAccountDetailsScreen(getAuthManager(), account, () -> create(account));
                 });
             }));
 
@@ -172,279 +171,6 @@ public class Customer {
             }
 
             mainPanel.add(mainScrollPane);
-        }
-
-        window.getContentPane().add(mainPanel);
-
-        window.setPreferredSize(new Dimension(1024, 768));
-        window.setLocationRelativeTo(null);
-        window.pack();
-
-        Main.refresh();
-    }
-
-    // Account Details screen
-    public static void showAccountDetailsScreen(Account account) {
-        Main.reset();
-
-        var window = Main.getFrame();
-
-        var mainPanel = new JPanel();
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        mainPanel.setOpaque(false);
-
-        {
-            var panel = new JPanel();
-            panel.setOpaque(false);
-            // not sure why Swing's not allowing us to resize anything, so we're just adding padding ourselves.
-            panel.add(new JLabel(new ImageIcon(Utils.createEmptyImage(15, 18))));
-            mainPanel.add(panel);
-        }
-
-        {
-            var panel = new JPanel();
-            panel.setOpaque(false);
-
-            try {
-                var image = Utils.getCircularImage(ImageIO.read(Main.class.getResourceAsStream("/images/profile.png")))
-                    .getScaledInstance(128, 128, Image.SCALE_SMOOTH);
-                panel.add(new JLabel(new ImageIcon(image)));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-            mainPanel.add(panel);
-        }
-
-        var email = new PlaceholderTextField("E-mail");
-        var displayName = new PlaceholderTextField("Display Name");
-
-        {
-            var panel = new JPanel();
-            panel.setOpaque(false);
-            panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-
-            panel.add(new JLabel("Email"));
-            panel.add(
-                Utils.make(email, field -> {
-                    field.setText(account.getEmail());
-                    ComponentHelper.disallowWhitespace(field);
-                    ComponentHelper.makePaddedAndMarginedTextField(field);
-                })
-            );
-
-            panel.add(new JLabel("Display Name"));
-            panel.add(
-                Utils.make(displayName, field -> {
-                    field.setText(account.getDisplayName());
-                    ComponentHelper.makePaddedAndMarginedTextField(field);
-                })
-            );
-
-            mainPanel.add(panel);
-        }
-
-        {
-            var panel = new JPanel();
-            panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-            panel.setOpaque(false);
-
-            panel.add(Utils.make(new JPanel(new FlowLayout(FlowLayout.CENTER)), changePassword -> {
-                changePassword.setOpaque(false);
-                changePassword.add(Utils.make(new JButton("Change Password"), button -> {
-                    ComponentHelper.makeHyperlink(button);
-                    button.addActionListener(e -> showChangePasswordScreen(account));
-                }));
-            }));
-
-            panel.add(
-                Utils.make(new JButton("Save"), button -> {
-                    button.setAlignmentX(Component.CENTER_ALIGNMENT);
-                    button.setEnabled(false);
-
-                    button.addActionListener(e -> {
-                        AuthManager authManager = getAuthManager();
-                        account.setEmail(email.getText());
-                        account.setDisplayName(displayName.getText());
-
-                        authManager.save();
-                    });
-
-                    var changeEvent = (ActionListener) e -> {
-                        // Disable button if the email or display name is blank - we do not allow empty emails or display names.
-                        if (email.getText().isBlank() || displayName.getText().isBlank())
-                            button.setEnabled(false);
-                        else if (email.getText().equals(account.getEmail()) && displayName.getText().equals(account.getDisplayName()))
-                            button.setEnabled(false); // If they're the same, don't enable the Save button
-                        else
-                            button.setEnabled(true); // Otherwise just allow the button to be enabled
-                    };
-
-                    // Add the shared action event to both email and display name
-                    email.addActionListener(changeEvent);
-                    displayName.addActionListener(changeEvent);
-                })
-            );
-
-            panel.add(
-                Utils.make(new JButton("Exit"), button -> {
-                    button.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-                    button.addActionListener(e -> {
-                        create(account);
-                    });
-                })
-            );
-
-            mainPanel.add(panel);
-        }
-
-        window.getContentPane().add(mainPanel);
-
-        window.setPreferredSize(new Dimension(1024, 768));
-        window.setLocationRelativeTo(null);
-        window.pack();
-
-        Main.refresh();
-    }
-
-    // Change Password screen
-    public static void showChangePasswordScreen(Account account) {
-        Main.reset();
-
-        var window = Main.getFrame();
-
-        var mainPanel = new JPanel();
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        mainPanel.setOpaque(false);
-
-        var oldPassword = new PlaceholderPasswordTextField("Old Password");
-        var newPassword = new PlaceholderPasswordTextField("New Password");
-        var confirmNewPassword = new PlaceholderPasswordTextField("Confirm New Password");
-
-        {
-            var panel = new JPanel();
-            panel.setOpaque(false);
-            // not sure why Swing's not allowing us to resize anything, so we're just adding padding ourselves.
-            panel.add(new JLabel(new ImageIcon(Utils.createEmptyImage(15, 18))));
-            mainPanel.add(panel);
-        }
-
-        {
-            var panel = new JPanel();
-            panel.setOpaque(false);
-
-            try {
-                var image = Utils.getCircularImage(ImageIO.read(Main.class.getResourceAsStream("/images/profile.png")))
-                    .getScaledInstance(128, 128, Image.SCALE_SMOOTH);
-                panel.add(new JLabel(new ImageIcon(image)));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-            mainPanel.add(panel);
-        }
-
-        {
-            var panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-
-            panel.add(new JLabel("Changing password for " + account.getDisplayName()));
-
-            panel.setOpaque(false);
-            mainPanel.add(panel);
-        }
-
-        {
-            var panel = new JPanel();
-            panel.setOpaque(false);
-            panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-
-            panel.add(
-                Utils.make(oldPassword, field -> {
-                    ComponentHelper.disallowWhitespace(field);
-                    ComponentHelper.makePaddedAndMarginedTextField(field);
-                })
-            );
-
-            panel.add(
-                Utils.make(newPassword, field -> {
-                    ComponentHelper.disallowWhitespace(field);
-                    ComponentHelper.makePaddedAndMarginedTextField(field);
-                })
-            );
-
-            panel.add(
-                Utils.make(confirmNewPassword, field -> {
-                    ComponentHelper.disallowWhitespace(field);
-                    ComponentHelper.makePaddedAndMarginedTextField(field);
-                })
-            );
-
-            mainPanel.add(panel);
-        }
-
-        var errorText = new JLabel("Error: [unknown]");
-        errorText.setForeground(ColorUtils.fromHex(0xFF5A5A));
-        errorText.setFont(errorText.getFont().deriveFont(14f));
-
-        {
-            var panel = new JPanel();
-            panel.setOpaque(false);
-            panel.setLayout(new FlowLayout(FlowLayout.CENTER));
-            errorText.setVisible(false);
-            panel.add(errorText);
-            mainPanel.add(panel);
-        }
-
-        {
-            var panel = new JPanel();
-            panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-            panel.setOpaque(false);
-
-            panel.add(
-                Utils.make(new JButton("Save"), button -> {
-                    button.setAlignmentX(Component.CENTER_ALIGNMENT);
-                    button.setEnabled(false);
-
-                    button.addActionListener(e -> {
-                        AuthManager authManager = getAuthManager();
-                        try {
-                            authManager.changePassword(account, oldPassword.getText(), newPassword.getText());
-                        } catch (Exception exception) {
-                            errorText.setText("Error: " + exception.getMessage());
-                            errorText.setVisible(true);
-                            exception.printStackTrace();
-                        }
-
-                        showAccountDetailsScreen(account);
-                    });
-
-                    var changeEvent = (ActionListener) e -> {
-                        // Disable button if the email or display name is blank - we do not allow empty emails or display names.
-                        if (oldPassword.getText().isBlank() || newPassword.getText().isBlank() || confirmNewPassword.getText().isBlank())
-                            button.setEnabled(false);
-                        else
-                            button.setEnabled(newPassword.getText().equals(confirmNewPassword.getText())); // If they're the same, enable the Save button
-                    };
-
-                    // Add the shared action event to all password fields
-                    oldPassword.addActionListener(changeEvent);
-                    newPassword.addActionListener(changeEvent);
-                    confirmNewPassword.addActionListener(changeEvent);
-                })
-            );
-
-            panel.add(
-                Utils.make(new JButton("Exit"), button -> {
-                    button.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-                    button.addActionListener(e -> {
-                        showAccountDetailsScreen(account);
-                    });
-                })
-            );
-
-            mainPanel.add(panel);
         }
 
         window.getContentPane().add(mainPanel);
