@@ -26,6 +26,8 @@ public class Admin {
     public static void create(Account account) {
         var window = Main.getFrame();
 
+        AdminViews.createHomeScreen(account);
+
         window.setPreferredSize(new Dimension(1280, 768));
         window.setLocationRelativeTo(null);
         window.pack();

@@ -27,7 +27,7 @@ public class ProductManager {
     }
 
     public Product addProduct(String barcode, Account seller, String name, String description, double price) {
-        var product = new Product(seller.getUUID(), barcode, name, description, price, 0, 0.0);
+        var product = new Product(seller.getUUID(), barcode, name, description, price, 0, 0.0, ProductCategory.UNCATEGORIZED);
         products.add(product);
 
         this.save();

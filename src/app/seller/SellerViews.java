@@ -545,7 +545,8 @@ public class SellerViews {
 
         // Sellers panel
         {
-            sidebar.add(makeDropdownPanel("Manage", List.of(
+            sidebar.add(makeDropdownPanel("Seller", List.of(
+                new DropdownItem("Home", () -> Seller.create(account)),
                 new DropdownItem("Manage Orders", () -> createManageOrdersScreen(account)),
                 new DropdownItem("Manage Products", () -> createManageProductsScreen(account))
             )));

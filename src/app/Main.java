@@ -427,7 +427,7 @@ public class Main {
             //OrderManager.getInstance().addToCart(customer.getUUID(), product, 5);
             //OrderManager.getInstance().placeOrder(customer.getUUID());
 
-            Seller.create(seller);
+            Admin.create(admin);
         }
 
         window.setVisible(true);

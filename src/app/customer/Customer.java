@@ -105,6 +105,7 @@ public class Customer {
                 infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
                 infoPanel.add(new JLabel(product.getName()));
                 infoPanel.add(new JLabel("EAN: " + product.getBarcode()));
+                infoPanel.add(new JLabel(product.getCategory().getFormatted()));
                 infoPanel.add(Utils.make(new JLabel("Seller: " + Seller.getAuthManager().getAccountByUUID(product.getSeller()).getDisplayName()), label -> {
                     label.setFont(label.getFont().deriveFont(11.5f));
                 }));

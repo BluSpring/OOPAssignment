@@ -17,8 +17,9 @@ public class Product {
     private double price;
     private int stock;
     private double discount;
+    private ProductCategory category;
 
-    public Product(UUID seller, String barcode, String name, String description, double price, int stock, double discount) {
+    public Product(UUID seller, String barcode, String name, String description, double price, int stock, double discount, ProductCategory category) {
         this.seller = seller;
         this.barcode = barcode;
         this.name = name;
@@ -26,6 +27,7 @@ public class Product {
         this.price = price;
         this.stock = stock;
         this.discount = discount;
+        this.category = category;
     }
 
     public UUID getSeller() {
@@ -80,6 +82,14 @@ public class Product {
         this.discount = discount;
     }
 
+    public ProductCategory getCategory() {
+        return category;
+    }
+
+    public void setCategory(ProductCategory category) {
+        this.category = category;
+    }
+
     public static class Serializer extends DataSerializer<Product> {
         public Serializer() {
             super(Product.class);
@@ -87,13 +97,15 @@ public class Product {
 
         @Override
         public String serialize(Product value) {
-            return DataSerializers.writeSegmentedLine(Utils.allToStrings(value.getSeller(), value.getBarcode(), value.getName(), value.getDescription(), value.getPrice(), value.getStock(), value.getDiscount()));
+            return DataSerializers.writeSegmentedLine(Utils.allToStrings(value.getSeller(), value.getBarcode(), value.getName(), value.getDescription(), value.getPrice(), value.getStock(), value.getDiscount(), value.getCategory()));
         }
 
         @Override
         public Product deserialize(String data) {
             var split = DataSerializers.readSegmentedLine(data);
-            return new Product(UUID.fromString(split.get(0)), split.get(1), split.get(2), split.get(3), Double.parseDouble(split.get(4)), Integer.parseInt(split.get(5)), Double.parseDouble(split.get(6)));
+            var category = split.size() < 8 ? ProductCategory.UNCATEGORIZED : ProductCategory.valueOf(split.get(7));
+
+            return new Product(UUID.fromString(split.get(0)), split.get(1), split.get(2), split.get(3), Double.parseDouble(split.get(4)), Integer.parseInt(split.get(5)), Double.parseDouble(split.get(6)), category);
         }
     }
 
