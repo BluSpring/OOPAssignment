@@ -5,7 +5,7 @@ import app.util.data.DataSerializers;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collection;
 import java.util.List;
 
 public class ProductManager {
@@ -22,8 +22,8 @@ public class ProductManager {
         this.load();
     }
 
-    public Iterator<Product> products() {
-        return this.products.iterator();
+    public Collection<Product> products() {
+        return this.products;
     }
 
     public Product addProduct(String barcode, Account seller, String name, String description, double price) {
@@ -32,6 +32,15 @@ public class ProductManager {
 
         this.save();
         return product;
+    }
+
+    public void removeProduct(String barcode) {
+        var product = getProduct(barcode);
+        if (product == null)
+            return;
+
+        this.products.remove(product);
+        this.save();
     }
 
     public Product getProduct(String barcode) {

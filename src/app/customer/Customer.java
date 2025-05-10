@@ -19,7 +19,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.font.TextAttribute;
-import java.util.Iterator;
 import java.util.Map;
 
 public class Customer {
@@ -93,8 +92,7 @@ public class Customer {
             mainScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
             mainScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 
-            for (Iterator<Product> it = ProductManager.getInstance().products(); it.hasNext();) {
-                var product = it.next();
+            for (Product product : ProductManager.getInstance().products()) {
                 var panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
                 panel.setPreferredSize(new Dimension(PANEL_WIDTH  - 2, 60));
