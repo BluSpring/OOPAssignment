@@ -18,14 +18,7 @@ public class ScrollablePanel extends JPanel implements MouseWheelListener {
         super.paintComponent(g);
 
         var g2d = (Graphics2D) g;
-        var fontMetrics = g2d.getFontMetrics();
-        // Otherwise, the text looks terrible
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-        var maxScroll = Math.max(this.getHeight() - this.getParent().getHeight(), 0);
-
-        var currentY = this.getY() - Math.min(currentScrollY, maxScroll);
-        g2d.translate(0, currentY);
 
         // Enable scrolling if it's needed
         if (this.getHeight() > this.getParent().getHeight()) {
@@ -69,7 +62,6 @@ public class ScrollablePanel extends JPanel implements MouseWheelListener {
             currentScrollY += scrollAmount;
         }
 
-        this.revalidate();
-        this.repaint();
+        ((JViewport) this.getParent()).setViewPosition(new Point(0, Math.min(currentScrollY, maxScroll)));
     }
 }
