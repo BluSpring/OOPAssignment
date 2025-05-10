@@ -41,6 +41,16 @@ public class OrderManager {
         return products;
     }
 
+    public Collection<Order> getAllOrders() {
+        var orders = new ArrayList<Order>();
+
+        customerOrderHistory.forEach(($, customerOrders) -> {
+            orders.addAll(customerOrders);
+        });
+
+        return orders;
+    }
+
     public List<Order> getAllOrdersWithSeller(UUID sellerId) {
         var orders = new ArrayList<Order>();
 

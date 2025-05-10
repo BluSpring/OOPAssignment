@@ -4,9 +4,7 @@ import app.Main;
 import app.auth.Account;
 import app.auth.AccountType;
 import app.auth.AuthManager;
-import app.product.Product;
-import app.product.ProductCategory;
-import app.product.ProductManager;
+import app.product.*;
 import app.seller.Seller;
 import app.ui.ComponentHelper;
 import app.ui.MultilineTextLabel;
@@ -21,9 +19,14 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.font.TextAttribute;
+import java.time.Instant;
+import java.time.YearMonth;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class AdminViews {
     private static final int PANEL_WIDTH = 775;
@@ -44,7 +47,118 @@ public class AdminViews {
         secondPanel.setOpaque(false);
 
         {
+            var formatter = DateTimeFormatter.ofPattern("MMM uuuu", Locale.US);
+            var monthlyOrders = new HashMap<YearMonth, List<Order>>(); // (Month, Year) -> [orders]
 
+            for (Order order : OrderManager.getInstance().getAllOrders()) {
+                // Ignore orders with pending or failed payment statuses
+                if (order.getPaymentStatus() == PaymentStatus.PENDING || order.getPaymentStatus() == PaymentStatus.FAILED)
+                    continue;
+
+                var yearMonth = YearMonth.from(
+                    Instant.ofEpochMilli(order.getOrderTimestamp())
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDate()
+                );
+                var ordersList = monthlyOrders.computeIfAbsent(yearMonth, $ -> new ArrayList<>());
+                ordersList.add(order);
+            }
+
+            var sortedMonths = monthlyOrders.keySet().stream()
+                .sorted(Comparator.reverseOrder())
+                .toList();
+
+            var monthsList = new JComboBox<>(sortedMonths.stream().map(formatter::format).toArray());
+            secondPanel.add(monthsList);
+
+            var statsPanel = new JPanel();
+            statsPanel.setOpaque(false);
+
+            var createStatsPanel = (Runnable) () -> {
+                statsPanel.removeAll();
+
+                var grossEarnings = new AtomicReference<Double>();
+
+                var scrollableList = new JScrollPane(Utils.make(new ScrollablePanel(), scrollable -> {
+                    scrollable.setLayout(new BoxLayout(scrollable, BoxLayout.Y_AXIS));
+
+                    var yearMonth = sortedMonths.get(monthsList.getSelectedIndex());
+                    var orders = monthlyOrders.get(yearMonth);
+
+                    scrollable.setOpaque(false);
+
+                    var grossEarningsDouble = 0.0;
+
+                    for (Order order : orders.reversed()) {
+                        var panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
+                        panel.setPreferredSize(new Dimension(PANEL_WIDTH  - 2, 60));
+                        panel.setMaximumSize(new Dimension(PANEL_WIDTH  - 2, 60));
+                        panel.setBackground(ColorUtils.fromHex(0x0047D6));
+                        panel.setBorder(new LineBorder(Color.BLACK, 1, true));
+
+                        var infoPanel = new JPanel();
+                        infoPanel.setOpaque(false);
+                        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+                        infoPanel.add(new JLabel("Order #" + order.getOrderId()));
+                        infoPanel.add(new JLabel("Total Earned: " + Utils.formatCurrency(order.getTotalCost())));
+                        infoPanel.add(new JLabel("Ordered at " + Utils.getDateTimeString(order.getOrderTimestamp())));
+
+                        grossEarningsDouble += order.getTotalCost();
+
+                        panel.add(infoPanel);
+
+                        var scrollPane = new JScrollPane(Utils.make(new ScrollablePanel(), pane -> {
+                            pane.setOpaque(false);
+                            pane.setBorder(new EmptyBorder(0, 2, 2, 2));
+                            pane.setForeground(Color.WHITE);
+
+                            order.getProducts().forEach((barcode, amount) -> {
+                                var product = ProductManager.getInstance().getProduct(barcode);
+                                pane.add(new JLabel(amount + "x - " + product.getName()));
+                            });
+                        }));
+                        scrollPane.setBorder(new CompoundBorder(
+                            new EmptyBorder(0, 3, 2, 3),
+                            new LineBorder(new Color(0f, 0f, 0f, 0.45f), 1)
+                        ));
+                        scrollPane.getViewport().setBackground(new Color(0f, 0f, 0f, 0.2f));
+                        scrollPane.setOpaque(false);
+                        scrollPane.setPreferredSize(new Dimension(400, 50));
+                        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+                        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+                        panel.add(scrollPane);
+
+                        scrollable.add(panel);
+                    }
+
+                    grossEarnings.set(grossEarningsDouble);
+                }));
+
+                scrollableList.setOpaque(false);
+                scrollableList.setPreferredSize(new Dimension(PANEL_WIDTH, 650));
+                scrollableList.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+                scrollableList.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+                statsPanel.add(scrollableList);
+
+                statsPanel.add(new JLabel("Gross Earnings: " + Utils.formatCurrency(grossEarnings.get())));
+
+                statsPanel.repaint();
+            };
+
+            secondPanel.add(statsPanel);
+
+            monthsList.addItemListener(e -> {
+                createStatsPanel.run();
+            });
+
+            if (!monthlyOrders.isEmpty()) {
+                createStatsPanel.run();
+            } else {
+                secondPanel.add(new JLabel("No orders available!"));
+            }
         }
 
         mainPanel.add(secondPanel);
