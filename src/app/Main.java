@@ -26,7 +26,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 public class Main {
-    public static final boolean IS_TESTING = true;
+    public static final boolean IS_TESTING = false;
 
     private static final JFrame window = new JFrame();
     public static Color topGradient = Color.WHITE;
