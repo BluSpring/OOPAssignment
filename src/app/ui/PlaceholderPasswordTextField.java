@@ -2,13 +2,18 @@ package app.ui;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
-public class PlaceholderPasswordTextField extends JPasswordField {
+public class PlaceholderPasswordTextField extends JPasswordField implements KeyListener {
     private String placeholder;
 
     public PlaceholderPasswordTextField(String placeholder) {
         super("");
         this.placeholder = placeholder;
+        this.addKeyListener(this);
     }
 
     public String getPlaceholder() {
@@ -33,5 +38,26 @@ public class PlaceholderPasswordTextField extends JPasswordField {
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setColor(this.getDisabledTextColor());
         g2d.drawString(this.getPlaceholder(), this.getInsets().left, g2d.getFontMetrics().getMaxAscent() + this.getInsets().top);
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+        // Force action events on these fields
+        for (ActionListener listener : this.getActionListeners()) {
+            listener.actionPerformed(new ActionEvent(this, 0, ""));
+        }
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        // Force action events on these fields
+        for (ActionListener listener : this.getActionListeners()) {
+            listener.actionPerformed(new ActionEvent(this, 0, ""));
+        }
     }
 }

@@ -28,8 +28,9 @@ public class OrderManager {
 
     public void addToCart(UUID customerId, Product product, int quantity) {
         var cart = this.getCart(customerId);
-        cart.products().putIfAbsent(product.getBarcode(), 0);
-        cart.products().compute(product.getBarcode(), (k, v) -> v + quantity);
+        // Sets the value of [barcode] to [quantity] if it does not exist,
+        // otherwise the value of [barcode] = (value of [barcode]) + [quantity]
+        cart.products().compute(product.getBarcode(), (k, v) -> v == null ? quantity : v + quantity);
     }
 
     public void removeFromCart(UUID customerId, Product product, int quantity) {

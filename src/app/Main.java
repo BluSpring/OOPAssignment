@@ -109,7 +109,6 @@ public class Main {
 
             panel.add(
                 Utils.make(displayName, field -> {
-                    ComponentHelper.disallowWhitespace(field);
                     ComponentHelper.makePaddedAndMarginedTextField(field);
                 })
             );
