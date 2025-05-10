@@ -1,9 +1,10 @@
 package app.util.data;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,7 +60,14 @@ public class DataSerializers {
                 lines.add(serializer.serialize(value));
             }
 
-            Files.write(file.toPath(), lines, StandardCharsets.UTF_8, StandardOpenOption.WRITE);
+            try (FileOutputStream stream = new FileOutputStream(file)) {
+                try (OutputStreamWriter streamWriter = new OutputStreamWriter(stream, StandardCharsets.UTF_8)) {
+                    for (String line : lines) {
+                        streamWriter.write(line);
+                        streamWriter.write('\n');
+                    }
+                }
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
