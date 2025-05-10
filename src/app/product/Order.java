@@ -68,6 +68,10 @@ public class Order {
         return paymentStatus;
     }
 
+    public void setPaymentStatus(PaymentStatus paymentStatus) {
+        this.paymentStatus = paymentStatus;
+    }
+
     public Map<String, Integer> getProducts() {
         return products;
     }

@@ -1,7 +1,7 @@
 package app.product;
 
 public enum OrderStatus {
-    PENDING("Pending Payment"),
+    PENDING("Pending"),
     CANCELLED("Cancelled"),
     READY_FOR_DELIVERY("Ready for Delivery"),
     IN_TRANSIT("In Transit"),

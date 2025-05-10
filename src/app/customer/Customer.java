@@ -4,11 +4,9 @@ import app.Main;
 import app.auth.Account;
 import app.auth.AccountType;
 import app.auth.AuthManager;
-import app.product.Order;
-import app.product.OrderManager;
-import app.product.Product;
-import app.product.ProductManager;
+import app.product.*;
 import app.seller.Seller;
+import app.ui.ComponentHelper;
 import app.ui.MultilineTextLabel;
 import app.ui.ScrollablePanel;
 import app.ui.SharedScreens;
@@ -70,6 +68,12 @@ public class Customer {
 
                 button.addActionListener(e -> {
                     showShoppingCartScreen(account);
+                });
+            }));
+
+            panel.add(Utils.make(new JButton("Order History"), button -> {
+                button.addActionListener(e -> {
+                    showOrderHistoryScreen(account);
                 });
             }));
 
@@ -423,8 +427,8 @@ public class Customer {
             for (Order order : orders) {
                 var panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
-                panel.setPreferredSize(new Dimension(PANEL_WIDTH  - 2, 60));
-                panel.setMaximumSize(new Dimension(PANEL_WIDTH  - 2, 60));
+                panel.setPreferredSize(new Dimension(PANEL_WIDTH  - 2, 80));
+                panel.setMaximumSize(new Dimension(PANEL_WIDTH  - 2, 80));
                 panel.setBackground(ColorUtils.fromHex(0x0047D6));
                 panel.setBorder(new LineBorder(Color.BLACK, 1, true));
 
@@ -433,6 +437,26 @@ public class Customer {
                 infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
                 infoPanel.add(new JLabel("Order ID: #" + order.getOrderId()));
                 infoPanel.add(new JLabel("Ordered at " + Utils.getDateTimeString(order.getOrderTimestamp())));
+
+                if (order.getPaymentStatus() == PaymentStatus.COMPLETED) {
+                    infoPanel.add(Utils.make(new JButton("Request Refund"), button -> {
+                        ComponentHelper.makeHyperlink(button);
+                        button.addActionListener(e -> {
+                            order.setPaymentStatus(PaymentStatus.REQUESTING_REFUND);
+                            OrderManager.getInstance().save();
+                            showOrderHistoryScreen(account);
+                        });
+                    }));
+                } else if (order.getPaymentStatus() == PaymentStatus.PENDING) {
+                    infoPanel.add(Utils.make(new JButton("Make Payment"), button -> {
+                        ComponentHelper.makeHyperlink(button);
+                        button.addActionListener(e -> {
+                            order.setPaymentStatus(PaymentStatus.COMPLETED);
+                            OrderManager.getInstance().save();
+                            showOrderHistoryScreen(account);
+                        });
+                    }));
+                }
 
                 panel.add(infoPanel);
 
@@ -453,7 +477,7 @@ public class Customer {
                 ));
                 scrollPane.getViewport().setBackground(new Color(0f, 0f, 0f, 0.2f));
                 scrollPane.setOpaque(false);
-                scrollPane.setPreferredSize(new Dimension(400, 50));
+                scrollPane.setPreferredSize(new Dimension(400, 70));
                 scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
                 scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
@@ -465,6 +489,7 @@ public class Customer {
 
                 numbersPanel.add(new JLabel(Utils.formatCurrency(order.getTotalCost())));
                 numbersPanel.add(new JLabel("Status: " + order.getStatus().getFormatted()));
+                numbersPanel.add(new JLabel("Payment: " + order.getPaymentStatus().getFormatted()));
 
                 panel.add(numbersPanel);
 

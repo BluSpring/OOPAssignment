@@ -390,7 +390,6 @@ public class Main {
         AuthLog.init();
         Order.init();
         Product.init();
-        Payment.init();
         ShoppingCart.init();
 
         Admin.init();
