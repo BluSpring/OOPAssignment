@@ -14,17 +14,19 @@ public class Order {
     private long deliveredTimestamp = -1;
     private OrderStatus status = OrderStatus.PENDING;
     private PaymentStatus paymentStatus = PaymentStatus.PENDING;
+    private final double totalCost;
     private final Map<String, Integer> products;
 
-    public Order(UUID account, int orderId, long orderTimestamp, Map<String, Integer> products) {
+    public Order(UUID account, int orderId, long orderTimestamp, double totalCost, Map<String, Integer> products) {
         this.account = account;
         this.orderId = orderId;
         this.orderTimestamp = orderTimestamp;
+        this.totalCost = totalCost;
         this.products = products;
     }
 
-    public Order(UUID account, int orderId, long orderTimestamp, long deliveredTimestamp, OrderStatus status, PaymentStatus paymentStatus, Map<String, Integer> products) {
-        this(account, orderId, orderTimestamp, products);
+    public Order(UUID account, int orderId, long orderTimestamp, long deliveredTimestamp, double totalCost, OrderStatus status, PaymentStatus paymentStatus, Map<String, Integer> products) {
+        this(account, orderId, orderTimestamp, totalCost, products);
         this.deliveredTimestamp = deliveredTimestamp;
         this.status = status;
         this.paymentStatus = paymentStatus;
@@ -48,6 +50,10 @@ public class Order {
 
     public UUID getAccountUUID() {
         return account;
+    }
+
+    public double getTotalCost() {
+        return totalCost;
     }
 
     public void setDeliveredTimestamp(long deliveredTimestamp) {
@@ -77,6 +83,7 @@ public class Order {
                 value.getAccountUUID(),
                 value.getOrderId(),
                 value.getOrderTimestamp(),
+                value.getTotalCost(),
                 value.getDeliveredTimestamp(),
                 value.getStatus().name(),
                 value.getPaymentStatus().name(),
@@ -93,9 +100,10 @@ public class Order {
                 Integer.parseInt(split.get(1)),
                 Long.parseLong(split.get(2)),
                 Long.parseLong(split.get(3)),
-                OrderStatus.valueOf(split.get(4)),
-                PaymentStatus.valueOf(split.get(5)),
-                (Map<String, Integer>) DataSerializers.getSerializer("product_map").deserialize(split.get(6))
+                Double.parseDouble(split.get(4)),
+                OrderStatus.valueOf(split.get(5)),
+                PaymentStatus.valueOf(split.get(6)),
+                (Map<String, Integer>) DataSerializers.getSerializer("product_map").deserialize(split.get(7))
             );
         }
     }

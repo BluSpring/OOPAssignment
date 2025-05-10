@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class OrderManager {
     private static final OrderManager instance = new OrderManager();
@@ -51,7 +52,14 @@ public class OrderManager {
         var cart = this.getCart(customerId);
         var products = new HashMap<>(cart.products()); // Copy the products map so we can clear ours
         List<Order> history = customerOrderHistory.computeIfAbsent(customerId, k -> new ArrayList<>());
-        var order = new Order(customerId, ++lastOrderId, System.currentTimeMillis(), products);
+
+        var totalCost = new AtomicReference<>(0.0);
+        products.forEach((barcode, amount) -> {
+            var product = ProductManager.getInstance().getProduct(barcode);
+            totalCost.set(totalCost.get() + (product.getPriceWithDiscount() * (double) amount));
+        });
+
+        var order = new Order(customerId, ++lastOrderId, System.currentTimeMillis(), totalCost.get(), products);
         history.add(order);
         cart.products().clear();
 

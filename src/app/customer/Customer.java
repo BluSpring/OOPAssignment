@@ -4,6 +4,7 @@ import app.Main;
 import app.auth.Account;
 import app.auth.AccountType;
 import app.auth.AuthManager;
+import app.product.Order;
 import app.product.OrderManager;
 import app.product.Product;
 import app.product.ProductManager;
@@ -225,6 +226,12 @@ public class Customer {
                 });
             }));
 
+            panel.add(Utils.make(new JButton("Order History"), button -> {
+                button.addActionListener(e -> {
+                    showOrderHistoryScreen(account);
+                });
+            }));
+
             mainPanel.add(panel);
         }
 
@@ -341,6 +348,124 @@ public class Customer {
 
                 contentPanel.add(panel);
             });
+
+            mainPanel.add(mainScrollPane);
+        }
+
+        window.getContentPane().add(mainPanel);
+
+        window.setPreferredSize(new Dimension(1024, 768));
+        window.setLocationRelativeTo(null);
+        window.pack();
+
+        Main.refresh();
+    }
+
+    public static void showOrderHistoryScreen(Account account) {
+        Main.reset();
+
+        var window = Main.getFrame();
+
+        var mainPanel = new JPanel();
+        mainPanel.setOpaque(false);
+
+        {
+            var panel = new JPanel();
+            panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+            panel.setOpaque(false);
+
+            panel.add(Utils.make(new JButton(account.getDisplayName(), new ImageIcon(Utils.getCircularImage(Utils.resizeImage("profile.png", 24, 24)))), button -> {
+                button.setOpaque(false);
+                button.setToolTipText("View Account Details");
+
+                button.addActionListener(e -> {
+                    SharedScreens.showAccountDetailsScreen(getAuthManager(), account, () -> create(account));
+                });
+            }));
+
+            panel.add(Utils.make(new JButton("Exit"), button -> {
+                button.addActionListener(e -> {
+                    create(account);
+                });
+            }));
+
+            mainPanel.add(panel);
+        }
+
+        {
+            var contentPanel = new ScrollablePanel();
+            contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+            contentPanel.setOpaque(false);
+
+            var mainScrollPane = new JScrollPane(contentPanel);
+            mainScrollPane.setBorder(new LineBorder(new Color(0f, 0f, 0f, 0.2f), 1));
+            mainScrollPane.setOpaque(false);
+
+            mainScrollPane.setPreferredSize(new Dimension(745, 703));
+            mainScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+            mainScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+
+            var orders = OrderManager.getInstance().getOrderHistory(account.getUUID());
+
+            if (orders.isEmpty()) {
+                var panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+                panel.setOpaque(false);
+
+                panel.add(Utils.make(new JLabel("No prior order history found!"), label -> {
+                    label.setForeground(Color.BLACK);
+                }));
+
+                contentPanel.add(panel);
+            }
+
+            for (Order order : orders) {
+                var panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
+                panel.setPreferredSize(new Dimension(window.getWidth() - 100, 60));
+                panel.setMaximumSize(new Dimension(window.getWidth() - 100, 60));
+                panel.setBackground(ColorUtils.fromHex(0x0047D6));
+                panel.setBorder(new LineBorder(Color.BLACK, 1, true));
+
+                var infoPanel = new JPanel();
+                infoPanel.setOpaque(false);
+                infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+                infoPanel.add(new JLabel("Order ID: #" + order.getOrderId()));
+                infoPanel.add(new JLabel("Ordered at " + Utils.getDateTimeString(order.getOrderTimestamp())));
+
+                panel.add(infoPanel);
+
+                var scrollPane = new JScrollPane(Utils.make(new ScrollablePanel(), pane -> {
+                    pane.setBorder(new EmptyBorder(0, 2, 2, 2));
+                    pane.setForeground(Color.WHITE);
+
+                    order.getProducts().forEach((barcode, amount) -> {
+                        var product = ProductManager.getInstance().getProduct(barcode);
+                        pane.add(new JLabel(amount + "x - " + product.getName()));
+                        pane.add(new JLabel(" -  Seller: " + Seller.getAuthManager().getAccountByUUID(product.getSeller()).getDisplayName()));
+                    });
+                }));
+                scrollPane.setBorder(new CompoundBorder(
+                    new EmptyBorder(0, 3, 2, 3),
+                    new LineBorder(new Color(0f, 0f, 0f, 0.45f), 1)
+                ));
+                scrollPane.getViewport().setBackground(new Color(0f, 0f, 0f, 0.2f));
+                scrollPane.setOpaque(false);
+                scrollPane.setPreferredSize(new Dimension(400, 50));
+                scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+                scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+                panel.add(scrollPane);
+
+                var numbersPanel = new JPanel();
+                numbersPanel.setOpaque(false);
+                numbersPanel.setLayout(new BoxLayout(numbersPanel, BoxLayout.Y_AXIS));
+
+                numbersPanel.add(new JLabel("RM " + order.getTotalCost()));
+
+                panel.add(numbersPanel);
+
+                contentPanel.add(panel);
+            }
 
             mainPanel.add(mainScrollPane);
         }

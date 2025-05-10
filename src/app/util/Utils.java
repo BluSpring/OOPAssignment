@@ -9,12 +9,14 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.List;
-import java.util.StringJoiner;
 import java.util.function.Consumer;
 
 public class Utils {
+    public static final UUID NIL_UUID = new UUID(0L, 0L);
+
     public static String join(String delimiter, Object... values) {
         var strings = new StringJoiner(delimiter);
 
@@ -92,5 +94,10 @@ public class Utils {
 
     public static Image createEmptyImage(int width, int height) {
         return new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+    }
+
+    public static String getDateTimeString(long timestamp) {
+        var dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+        return dateFormat.format(new Date(timestamp));
     }
 }
