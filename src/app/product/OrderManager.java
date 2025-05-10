@@ -31,6 +31,7 @@ public class OrderManager {
         // Sets the value of [barcode] to [quantity] if it does not exist,
         // otherwise the value of [barcode] = (value of [barcode]) + [quantity]
         cart.products().compute(product.getBarcode(), (k, v) -> v == null ? quantity : v + quantity);
+        this.save();
     }
 
     public void removeFromCart(UUID customerId, Product product, int quantity) {
@@ -42,13 +43,18 @@ public class OrderManager {
         } else {
             cart.products().put(product.getBarcode(), current - quantity);
         }
+
+        this.save();
     }
 
     public Order placeOrder(UUID customerId) {
         var cart = this.getCart(customerId);
+        var products = new HashMap<>(cart.products()); // Copy the products map so we can clear ours
         List<Order> history = customerOrderHistory.computeIfAbsent(customerId, k -> new ArrayList<>());
-        var order = new Order(customerId, ++lastOrderId, System.currentTimeMillis(), cart.products());
+        var order = new Order(customerId, ++lastOrderId, System.currentTimeMillis(), products);
         history.add(order);
+        cart.products().clear();
+
         this.save();
 
         return order;

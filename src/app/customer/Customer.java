@@ -43,6 +43,14 @@ public class Customer {
         mainPanel.setOpaque(false);
 
         var cartButton = new JButton(new ImageIcon(Utils.resizeImage("shopping_cart.png", 24, 24)));
+        var updateCartLabel = (Runnable) () -> {
+            var count = 0;
+            for (Integer value : OrderManager.getInstance().getCart(account.getUUID()).products().values()) {
+                count += value;
+            }
+
+            cartButton.setText(count + " items");
+        };
 
         {
             var panel = new JPanel();
@@ -59,12 +67,7 @@ public class Customer {
             }));
 
             panel.add(Utils.make(cartButton, button -> {
-                var count = 0;
-                for (Integer value : OrderManager.getInstance().getCart(account.getUUID()).products().values()) {
-                    count += value;
-                }
-
-                button.setText(count + " items");
+                updateCartLabel.run();
                 button.setToolTipText("View Shopping Cart");
 
                 button.addActionListener(e -> {
@@ -169,6 +172,7 @@ public class Customer {
                     button.addActionListener(e -> {
                         OrderManager.getInstance().addToCart(account.getUUID(), product, (int) spinner.getValue());
                         spinner.setValue(Math.min(1, product.getStock())); // Reset value back to 1
+                        updateCartLabel.run();
                     });
                 }));
 
