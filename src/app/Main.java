@@ -20,7 +20,6 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.io.IOException;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.function.Consumer;
 
 public class Main {
@@ -424,7 +423,7 @@ public class Main {
         createLoginScreen();
 
         // TODO: remove in production
-        Customer.create(new Account(AccountType.CUSTOMER, UUID.randomUUID(), "test@test.com", "Test Account", ""));
+        Customer.create(new Account(AccountType.CUSTOMER, Utils.NIL_UUID, "test@test.com", "Test Account", ""));
 
         window.setVisible(true);
     }
