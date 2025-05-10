@@ -6,7 +6,10 @@ import app.auth.AccountType;
 import app.auth.AuthLog;
 import app.auth.AuthManager;
 import app.customer.Customer;
-import app.product.*;
+import app.product.Order;
+import app.product.Product;
+import app.product.ProductManager;
+import app.product.ShoppingCart;
 import app.seller.Seller;
 import app.ui.ComponentHelper;
 import app.ui.PlaceholderPasswordTextField;
@@ -421,10 +424,10 @@ public class Main {
 
             product2.setStock(15);
 
-            OrderManager.getInstance().addToCart(customer.getUUID(), product, 5);
-            OrderManager.getInstance().placeOrder(customer.getUUID());
+            //OrderManager.getInstance().addToCart(customer.getUUID(), product, 5);
+            //OrderManager.getInstance().placeOrder(customer.getUUID());
 
-            Customer.create(customer);
+            Seller.create(seller);
         }
 
         window.setVisible(true);

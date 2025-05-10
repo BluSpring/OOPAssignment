@@ -424,7 +424,7 @@ public class Customer {
                 contentPanel.add(panel);
             }
 
-            for (Order order : orders) {
+            for (Order order : orders.reversed()) {
                 var panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
                 panel.setPreferredSize(new Dimension(PANEL_WIDTH  - 2, 80));

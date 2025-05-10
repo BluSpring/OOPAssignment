@@ -27,6 +27,34 @@ public class OrderManager {
         this.load();
     }
 
+    public Map<String, Integer> getAllProductsForSeller(UUID sellerId, Order order) {
+        var products = new HashMap<String, Integer>();
+
+        order.getProducts().forEach((barcode, amount) -> {
+            var product = ProductManager.getInstance().getProduct(barcode);
+
+            if (product.getSeller().equals(sellerId)) {
+                products.put(barcode, amount);
+            }
+        });
+
+        return products;
+    }
+
+    public List<Order> getAllOrdersWithSeller(UUID sellerId) {
+        var orders = new ArrayList<Order>();
+
+        customerOrderHistory.forEach(($, orderHistory) -> {
+            for (Order order : orderHistory) {
+                if (!getAllProductsForSeller(sellerId, order).isEmpty()) {
+                    orders.add(order);
+                }
+            }
+        });
+
+        return orders;
+    }
+
     public void addToCart(UUID customerId, Product product, int quantity) {
         var cart = this.getCart(customerId);
         // Sets the value of [barcode] to [quantity] if it does not exist,
