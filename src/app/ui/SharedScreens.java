@@ -125,6 +125,16 @@ public class SharedScreens {
                 })
             );
 
+            panel.add(
+                Utils.make(new JButton("Log Out"), button -> {
+                    button.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+                    button.addActionListener(e -> {
+                        Main.createLoginScreen();
+                    });
+                })
+            );
+
             mainPanel.add(panel);
         }
 
