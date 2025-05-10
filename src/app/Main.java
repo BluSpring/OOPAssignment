@@ -397,6 +397,8 @@ public class Main {
         Customer.init();
         Seller.init();
 
+        createLoginScreen();
+
         if (IS_TESTING) { // Add testing data
             var customer = Customer.getAuthManager().getAccountByEmail("test@test.com") == null ?
                 Customer.getAuthManager().create("test@test.com", "Test Account", "testing1234")
@@ -405,6 +407,10 @@ public class Main {
             var seller = Seller.getAuthManager().getAccountByEmail("test@test.com") == null ?
                 Seller.getAuthManager().create("test@test.com", "Test Account", "testing1234")
                 : Seller.getAuthManager().getAccountByEmail("test@test.com");
+
+            var admin = Admin.getAuthManager().getAccountByEmail("test@test.com") == null ?
+                Admin.getAuthManager().create("test@test.com", "Test Account", "testing1234")
+                : Admin.getAuthManager().getAccountByEmail("test@test.com");
 
             var product = ProductManager.getInstance().getProduct("0123456789");
             if (product == null)
@@ -418,12 +424,9 @@ public class Main {
 
             OrderManager.getInstance().addToCart(customer.getUUID(), product, 5);
             OrderManager.getInstance().placeOrder(customer.getUUID());
+
+            Customer.create(customer);
         }
-
-        createLoginScreen();
-
-        // TODO: remove in production
-        Customer.create(new Account(AccountType.CUSTOMER, Utils.NIL_UUID, "test@test.com", "Test Account", ""));
 
         window.setVisible(true);
     }

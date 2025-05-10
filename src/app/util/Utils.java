@@ -100,4 +100,8 @@ public class Utils {
         var dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
         return dateFormat.format(new Date(timestamp));
     }
+
+    public static String formatCurrency(double cost) {
+        return String.format("RM %.2f", cost);
+    }
 }

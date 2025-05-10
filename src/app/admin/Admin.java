@@ -26,7 +26,7 @@ public class Admin {
     public static void create(Account account) {
         var window = Main.getFrame();
 
-        window.setPreferredSize(new Dimension(1024, 768));
+        window.setPreferredSize(new Dimension(1280, 768));
         window.setLocationRelativeTo(null);
         window.pack();
     }

@@ -25,6 +25,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class Customer {
+    private static final int PANEL_WIDTH = 775;
+    
     private static final AuthManager authManager = new AuthManager(AccountType.CUSTOMER);
 
     public static AuthManager getAuthManager() {
@@ -83,7 +85,7 @@ public class Customer {
             mainScrollPane.setBorder(new LineBorder(new Color(0f, 0f, 0f, 0.2f), 1));
             mainScrollPane.setOpaque(false);
 
-            mainScrollPane.setPreferredSize(new Dimension(745, 703));
+            mainScrollPane.setPreferredSize(new Dimension(PANEL_WIDTH, 703));
             mainScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
             mainScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 
@@ -91,8 +93,8 @@ public class Customer {
                 var product = it.next();
                 var panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
-                panel.setPreferredSize(new Dimension(window.getWidth() - 100, 60));
-                panel.setMaximumSize(new Dimension(window.getWidth() - 100, 60));
+                panel.setPreferredSize(new Dimension(PANEL_WIDTH  - 2, 60));
+                panel.setMaximumSize(new Dimension(PANEL_WIDTH  - 2, 60));
                 panel.setBackground(ColorUtils.fromHex(0x0047D6));
                 panel.setBorder(new LineBorder(Color.BLACK, 1, true));
 
@@ -180,7 +182,7 @@ public class Customer {
 
         window.getContentPane().add(mainPanel);
 
-        window.setPreferredSize(new Dimension(1024, 768));
+        window.setPreferredSize(new Dimension(1280, 768));
         window.setLocationRelativeTo(null);
         window.pack();
 
@@ -244,7 +246,7 @@ public class Customer {
             mainScrollPane.setBorder(new LineBorder(new Color(0f, 0f, 0f, 0.2f), 1));
             mainScrollPane.setOpaque(false);
 
-            mainScrollPane.setPreferredSize(new Dimension(745, 703));
+            mainScrollPane.setPreferredSize(new Dimension(PANEL_WIDTH, 703));
             mainScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
             mainScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 
@@ -268,8 +270,8 @@ public class Customer {
                 if (Math.min(product.getStock(), amount) <= 0)
                     return;
 
-                panel.setPreferredSize(new Dimension(window.getWidth() - 100, 60));
-                panel.setMaximumSize(new Dimension(window.getWidth() - 100, 60));
+                panel.setPreferredSize(new Dimension(PANEL_WIDTH  - 2, 60));
+                panel.setMaximumSize(new Dimension(PANEL_WIDTH  - 2, 60));
                 panel.setBackground(ColorUtils.fromHex(0x0047D6));
                 panel.setBorder(new LineBorder(Color.BLACK, 1, true));
 
@@ -308,15 +310,15 @@ public class Customer {
                 var pricePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
                 pricePanel.setOpaque(false);
                 if (product.getDiscount() > 0) {
-                    pricePanel.add(new JLabel("Price: RM " + product.getPriceWithDiscount()));
-                    pricePanel.add(Utils.make(new JLabel(" RM " + product.getPrice()), label -> {
+                    pricePanel.add(new JLabel("Price: " + Utils.formatCurrency(product.getPriceWithDiscount())));
+                    pricePanel.add(Utils.make(new JLabel(" " + Utils.formatCurrency(product.getPrice())), label -> {
                         Map attributes = label.getFont().getAttributes();
                         attributes.put(TextAttribute.STRIKETHROUGH, TextAttribute.STRIKETHROUGH_ON);
 
                         label.setFont(new Font(attributes));
                     }));
                 } else {
-                    pricePanel.add(new JLabel("Price: RM " + product.getPrice()));
+                    pricePanel.add(new JLabel("Price: " + Utils.formatCurrency(product.getPrice())));
                 }
 
                 numbersPanel.add(pricePanel);
@@ -354,7 +356,7 @@ public class Customer {
 
         window.getContentPane().add(mainPanel);
 
-        window.setPreferredSize(new Dimension(1024, 768));
+        window.setPreferredSize(new Dimension(1280, 768));
         window.setLocationRelativeTo(null);
         window.pack();
 
@@ -401,7 +403,7 @@ public class Customer {
             mainScrollPane.setBorder(new LineBorder(new Color(0f, 0f, 0f, 0.2f), 1));
             mainScrollPane.setOpaque(false);
 
-            mainScrollPane.setPreferredSize(new Dimension(745, 703));
+            mainScrollPane.setPreferredSize(new Dimension(PANEL_WIDTH, 703));
             mainScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
             mainScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 
@@ -421,8 +423,8 @@ public class Customer {
             for (Order order : orders) {
                 var panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
-                panel.setPreferredSize(new Dimension(window.getWidth() - 100, 60));
-                panel.setMaximumSize(new Dimension(window.getWidth() - 100, 60));
+                panel.setPreferredSize(new Dimension(PANEL_WIDTH  - 2, 60));
+                panel.setMaximumSize(new Dimension(PANEL_WIDTH  - 2, 60));
                 panel.setBackground(ColorUtils.fromHex(0x0047D6));
                 panel.setBorder(new LineBorder(Color.BLACK, 1, true));
 
@@ -461,7 +463,8 @@ public class Customer {
                 numbersPanel.setOpaque(false);
                 numbersPanel.setLayout(new BoxLayout(numbersPanel, BoxLayout.Y_AXIS));
 
-                numbersPanel.add(new JLabel("RM " + order.getTotalCost()));
+                numbersPanel.add(new JLabel(Utils.formatCurrency(order.getTotalCost())));
+                numbersPanel.add(new JLabel("Status: " + order.getStatus().getFormatted()));
 
                 panel.add(numbersPanel);
 
@@ -473,7 +476,7 @@ public class Customer {
 
         window.getContentPane().add(mainPanel);
 
-        window.setPreferredSize(new Dimension(1024, 768));
+        window.setPreferredSize(new Dimension(1280, 768));
         window.setLocationRelativeTo(null);
         window.pack();
 

@@ -140,7 +140,7 @@ public class SharedScreens {
 
         window.getContentPane().add(mainPanel);
 
-        window.setPreferredSize(new Dimension(1024, 768));
+        window.setPreferredSize(new Dimension(1280, 768));
         window.setLocationRelativeTo(null);
         window.pack();
 
@@ -287,7 +287,7 @@ public class SharedScreens {
 
         window.getContentPane().add(mainPanel);
 
-        window.setPreferredSize(new Dimension(1024, 768));
+        window.setPreferredSize(new Dimension(1280, 768));
         window.setLocationRelativeTo(null);
         window.pack();
 
