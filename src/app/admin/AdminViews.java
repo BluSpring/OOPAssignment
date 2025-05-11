@@ -18,6 +18,7 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.awt.event.ItemEvent;
 import java.awt.font.TextAttribute;
 import java.time.Instant;
 import java.time.YearMonth;
@@ -309,9 +310,12 @@ public class AdminViews {
                 infoPanel.add(new JLabel(product.getName()));
                 infoPanel.add(new JLabel("EAN: " + product.getBarcode()));
                 infoPanel.add(Utils.make(new JComboBox<>(ProductCategory.values()), box -> {
+                    box.setSelectedItem(product.getCategory());
                     box.addItemListener(e -> {
-                        product.setCategory((ProductCategory) e.getItem());
-                        ProductManager.getInstance().save();
+                        if (e.getStateChange() == ItemEvent.SELECTED) {
+                            product.setCategory((ProductCategory) e.getItem());
+                            ProductManager.getInstance().save();
+                        }
                     });
                 }));
                 infoPanel.add(Utils.make(new JLabel("Seller: " + Seller.getAuthManager().getAccountByUUID(product.getSeller()).getDisplayName()), label -> {
