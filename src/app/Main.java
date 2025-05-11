@@ -273,11 +273,11 @@ public class Main {
                 })
             );
 
-            panel.add(
+            /*panel.add(
                 Utils.make(new JButton("Forgot password"), button -> {
                     ComponentHelper.makeHyperlink(button);
                 })
-            );
+            );*/
 
             mainPanel.add(panel);
         }
