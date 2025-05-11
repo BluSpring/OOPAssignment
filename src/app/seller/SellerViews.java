@@ -447,7 +447,7 @@ public class SellerViews {
         var name = new PlaceholderTextField("Name");
         var description = new ListenableTextArea();
         var price = new JSpinner(new SpinnerNumberModel(1.0, 0.01, 100_000.0, 1.0));
-        var stock = new JSpinner(new SpinnerNumberModel(product.getStock(), 0, 1_000_000_000, 1));
+        var stock = new JSpinner(new SpinnerNumberModel(0, 0, 1_000_000_000, 1));
 
         {
             var panel = new JPanel();
