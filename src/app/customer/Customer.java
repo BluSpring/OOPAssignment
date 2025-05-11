@@ -340,7 +340,7 @@ public class Customer {
 
                 panel.add(spinner);
 
-                panel.add(Utils.make(new JButton("X"), button -> {
+                panel.add(Utils.make(new JButton(new ImageIcon(Utils.getImage("trash_bin.png"))), button -> {
                     button.setPreferredSize(new Dimension(24, 24));
                     button.setToolTipText("Remove from Cart");
 
