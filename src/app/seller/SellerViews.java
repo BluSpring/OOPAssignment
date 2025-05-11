@@ -505,7 +505,6 @@ public class SellerViews {
             panel.add(
                 Utils.make(new JButton("Save"), button -> {
                     button.setAlignmentX(Component.CENTER_ALIGNMENT);
-                    button.setEnabled(false);
 
                     button.addActionListener(e -> {
                         ProductManager.getInstance().addProduct(barcode.getText(), account, name.getText(), description.getText(), (double) price.getValue(), (int) stock.getValue());
