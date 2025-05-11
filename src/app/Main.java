@@ -416,13 +416,11 @@ public class Main {
 
             var product = ProductManager.getInstance().getProduct("0123456789");
             if (product == null)
-                product = ProductManager.getInstance().addProduct("0123456789", seller, "Test Product", "Description stuff yes yes", 69.42);
+                product = ProductManager.getInstance().addProduct("0123456789", seller, "Test Product", "Description stuff yes yes", 69.42, 15);
 
             var product2 = ProductManager.getInstance().getProduct("01234567899");
             if (product2 == null)
-                product2 = ProductManager.getInstance().addProduct("01234567899", seller, "Test Product 2", "Description stuff yes and with a long one at that too probably idk how long I can go or speak for but this is just an incredibly long description, maybe it can go longer, oh yeah also this is \"testing\" my serialization code too lmao.", 420.69);
-
-            product2.setStock(15);
+                product2 = ProductManager.getInstance().addProduct("01234567899", seller, "Test Product 2", "Description stuff yes and with a long one at that too probably idk how long I can go or speak for but this is just an incredibly long description, maybe it can go longer, oh yeah also this is \"testing\" my serialization code too lmao.", 420.69, 2);
 
             //OrderManager.getInstance().addToCart(customer.getUUID(), product, 5);
             //OrderManager.getInstance().placeOrder(customer.getUUID());
