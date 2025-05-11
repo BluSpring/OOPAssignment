@@ -383,6 +383,7 @@ public class SellerViews {
                         product.setStock((int) stock.getValue());
 
                         ProductManager.getInstance().save();
+                        createManageProductsScreen(account);
                     });
 
                     var changeEvent = (ActionListener) e -> {
