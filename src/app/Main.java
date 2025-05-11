@@ -28,7 +28,7 @@ import java.util.function.Consumer;
 public class Main {
     public static final boolean IS_TESTING = false;
 
-    private static final JFrame window = new JFrame();
+    private static final JFrame window = new JFrame("NVM E-Commerce System");
     public static Color topGradient = Color.WHITE;
     public static Color bottomGradient = Color.WHITE;
 
