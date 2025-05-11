@@ -95,8 +95,8 @@ public class Customer {
             for (Product product : ProductManager.getInstance().products()) {
                 var panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
-                panel.setPreferredSize(new Dimension(PANEL_WIDTH  - 2, 60));
-                panel.setMaximumSize(new Dimension(PANEL_WIDTH  - 2, 60));
+                panel.setPreferredSize(new Dimension(PANEL_WIDTH  - 2, 80));
+                panel.setMaximumSize(new Dimension(PANEL_WIDTH  - 2, 80));
                 panel.setBackground(ColorUtils.fromHex(0x0047D6));
                 panel.setBorder(new LineBorder(Color.BLACK, 1, true));
 
